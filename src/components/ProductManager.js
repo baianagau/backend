@@ -1,7 +1,7 @@
-const fs = require ("fs");
+import fs from "fs";
 
 
-class ProductManager {
+export default class ProductManager {
     constructor(){
         this.patch ="./productos.txt";
         this.products =[];
@@ -70,11 +70,21 @@ await fs.promises.writeFile(this.patch, JSON.stringify(modifiedProducts));
 }
 const productos = new ProductManager();
 
-// productos.addProduct("Titulo1", "Description1", 1000, "image1", "abc123", 5);
-// productos.addProduct("Titulo2", "Description2", 3000, "image2", "abc123", 6);
-// productos.addProduct("Titulo3", "Description3", 4000, "image3", "abc123", 7);
 
-productos.getProducts();
+
+
+// productos.addProduct("Titulo1", "Description1", 1000, "image1", "abc1", 1);
+// productos.addProduct("Titulo2", "Description2", 1000, "image2", "abc2", 2);
+// productos.addProduct("Titulo3", "Description3", 1000, "image3", "abc3", 3);
+// productos.addProduct("Titulo4", "Description4", 1000, "image4", "abc4", 4);
+// productos.addProduct("Titulo5", "Description5", 1000, "image5", "abc5", 5);
+// productos.addProduct("Titulo6", "Description6", 1000, "image6", "abc6", 6);
+// productos.addProduct("Titulo7", "Description7", 1000, "image7", "abc7", 7);
+// productos.addProduct("Titulo8", "Description8", 1000, "image8", "abc8", 8);
+// productos.addProduct("Titulo9", "Description9", 3000, "image9", "abc9", 9);
+// productos.addProduct("Titulo10", "Description10",4000, "image10", "abc10", 10);
+
+// productos.getProducts();
 
 // productos.getProductsById(3)
 // productos.deleteProductsById(2);
@@ -84,8 +94,8 @@ productos.updateProducts ({
     description: 'Description3',
     price: 3500,
     image: 'image3',
-    code: 'abc125',
+    code: 'abc3',
     stock: 22,
     id: 3
-})
+});
 
