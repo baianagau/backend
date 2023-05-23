@@ -9,7 +9,7 @@ class ProductManager {
 
         for (let i = 0; i < this.products.length; i++) {
             if (this.products[i].code === code) {
-                console.log(`El codigo ${code} esta repetido`);
+                return alert(`El codigo ${code} esta repetido`);
             }
         }
 
@@ -30,7 +30,7 @@ class ProductManager {
                 id: ProductManager.id
             });
         } else {
-            console.log("todos los campos son requeridos")
+            return alert("todos los campos son requeridos!")
         }
     }
 
@@ -44,21 +44,21 @@ class ProductManager {
 
     getProductById(id) {
 
-        !this.existe(id) ? console.log("Not Found") : console.log(this.existe(id));
+        !this.existe(id) ? alert("Not Found") : alert(this.existe(id));
     }
 }
 
 const productos = new ProductManager();
 
 // 1) arreglo vacio
-console.log(productos.getProduct());
+productos.getProduct()
 
 // productos agregados
 productos.addProduct('titulo1', 'descripcion1', '1000', 'imagen1', 'abc123', 5);
 productos.addProduct('titulo2', 'descripcion2', '1000', 'imagen2', 'abc124');
 
 // 2) productos
-console.log(productos.getProduct());
+productos.getProduct();
 
 // codigo repetido
 productos.addProduct('titulo3', 'descripcion3', '1000', 'imagen2', 'abc124', 7);
