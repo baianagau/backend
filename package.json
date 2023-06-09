@@ -1,20 +1,20 @@
 {
-  "name": "preentrega1-backend",
+  "name": "desafio4-websocket",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon src/index.js"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.1.4",
     "express": "^4.18.2",
-    "nanoid": "^4.0.1"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.20"
+    "express-handlebars": "^7.0.7",
+    "socket.io": "^4.6.2"
   }
 }
