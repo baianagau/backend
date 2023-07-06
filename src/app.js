@@ -40,7 +40,7 @@ app.use('/api/messages', messagesRouter);
 app.use('/', viewsRouter);
 
 //mongoDB connection
-// npm
+
 mongoose.connect(MONGO, {
   useNewUrlParser: true,
   useUnifiedTopology: true
