@@ -40,6 +40,7 @@ app.use('/api/messages', messagesRouter);
 app.use('/', viewsRouter);
 
 //mongoDB connection
+const MONGO = `mongodb+srv://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}`;
 
 mongoose.connect(MONGO, {
   useNewUrlParser: true,

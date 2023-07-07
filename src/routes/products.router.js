@@ -7,11 +7,13 @@ const productManager = new ProductManager();
 
 const router = Router();
 
-router.get('/', async (req, res) => {
+router.get('/', async (req, res) => { 
     try {
-        const {limit} = req.query;
-        const products = await productManager.getProducts(limit);
-        res.send({status: 1, products: products});
+        const { limit = 10, page = 1, sort, category, available } = req.query;
+        // Get baseUrl for navigation links
+        const baseUrl = `${req.protocol}://${req.get('host')}${req.originalUrl.split('?')[0]}`;
+        const products = await productManager.getProducts(limit, page, sort, category, available, baseUrl);        
+        res.send({status: 1, ...products});
     } catch (error) {
         res.status(500).send({status: 0, msg: error.message});
     }
