@@ -1,4 +1,11 @@
 <div>
+    <div class="userProfile">
+        <h2>Bienvenido/a</h2>
+        <p>{{user.name}}</p>
+        <p>{{user.email}}</p>
+        <p>Rol {{user.userRole}}</p>
+        <button class="logout">Logout</button>
+    </div>
     <h1>Listado de productos</h1>
     <div class="cardsContainer">
         {{#each products.products}}
@@ -26,3 +33,4 @@
     </div>
 </div>
 <script src="/files/js/addProductToCart.js"></script>
+<script src="/files/js/logout.js"></script>

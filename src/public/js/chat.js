@@ -14,7 +14,7 @@ socket.on('newUserConnected', data => {
 });
 
 Swal.fire({
-    title: 'Hola Flowerier!',
+    title: 'Hola!',
     input: 'text',
     text: 'Ingresa tu usuario para identificarte en el chat',
     inputValidator: (value) => {

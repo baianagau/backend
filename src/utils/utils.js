@@ -1,9 +1,12 @@
 import {fileURLToPath} from 'url';
 import { dirname } from 'path';
 import path from 'path';
+import bcrypt from 'bcrypt';
+
+export const createHash = (password) => bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+export const isValidPassword = (user, password) => bcrypt.compareSync(password, user.password);
 
 const __filename = fileURLToPath(import.meta.url);
-//one folder level down from this file as utils.js is in src/utils and not in src
 const __dirname = path.join(dirname(__filename), `../`);
 
 export default __dirname;
