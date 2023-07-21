@@ -1,8 +1,9 @@
 import { Router } from 'express';
-import usersModel from '../dao/models/users.model.js';
 import passport from 'passport';
-import { ADMIN_USER, ADMIN_PASSWORD } from '../utils/adminConfig.js';
-import { createHash, isValidPassword } from '../utils/utils.js';
+
+// import { ADMIN_USER, ADMIN_PASSWORD } from '../utils/adminConfig.js';
+// import { createHash, isValidPassword } from '../utils/utils.js';
+
 
 const router = Router();
 
@@ -49,6 +50,21 @@ router.get('/authFailureLogin', (req, res) => {
 router.get('/authFailureReset', (req, res) => {
     const error = req.flash('error')[0];
     res.status(400).send({ status: 0, msg: error });
+});
+
+router.get('/github', passport.authenticate('github', { scope: ['user:email'] }), async (req, res) => { });
+
+router.get('/githubcallback', passport.authenticate('github', { failureRedirect: '/api/sessions/githubFailure' }), async (req, res) => {
+    req.session.user = {
+        name: `${req.user.firstName} ${req.user.lastName}`,
+        email: req.user.email,
+        userRole: req.user.userRole
+    };
+    res.redirect('/products');
+});
+
+router.get('/githubFailure', (req, res) => {
+    res.status(400).send({ status: 0, msg: 'Github authentication failure' });
 });
 
 export default router;

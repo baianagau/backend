@@ -19,7 +19,7 @@ import viewsRouter from './routes/views.router.js'
 import sessionsRouter from './routes/sessions.router.js'
 import MONGO from './utils/mongoDBconfig.js';
 import initializePassport from './config/passport.config.js';
-import  { SECRET_D } from './utils/adminConfig.js'
+// import  { SECRET_D } from './utils/adminConfig.js'
 const PORT = 8080;
 
 //Express middlewares config
@@ -62,7 +62,7 @@ app.use(session({
       mongoUrl: MONGO,
       ttl: 3600
   }),
-  secret: SECRET_D,
+  secret: "secret",
   resave: false,
   saveUninitialized: false
 }))

@@ -3,6 +3,8 @@ import local from "passport-local";
 import UsersModel from "../dao/models/users.model.js";
 import { createHash, isValidPassword } from "../utils/utils.js";
 import { ADMIN_USER } from "../utils/adminConfig.js";
+import GitHubStrategy from "passport-github2";
+import { APP_ID, CLIENT_ID, CLIENT_SECRET } from "../utils/githubConfig.js";
 
 const LocalStrategy = local.Strategy;
 
@@ -15,13 +17,13 @@ const initializePassport = () => {
         try {
             const { firstName, lastName, email, birthDate } = req.body;
             if (username.toLowerCase() === ADMIN_USER.toLowerCase()) {
-                errorMsg = "already exists";
+                errorMsg = " already exists";
                 req.flash('error', errorMsg);
                 return done(null, false, { msg: errorMsg });
             }
             const exists = await UsersModel.findOne({ email: { $regex: new RegExp(`^${username}$`, 'i') } });
             if (exists) {
-                errorMsg = "already exists";
+                errorMsg = " already exists";
                 req.flash('error', errorMsg);
                 return done(null, false, { msg: errorMsg });
             }
@@ -106,10 +108,35 @@ const initializePassport = () => {
                 return done(null, user);
             }
         } catch (error) {
-            //errorMsg = error.message;
-            errorMsg = "Error resetting password";
+            errorMsg = error.message;
             req.flash('error', errorMsg);
             return done({ msg: errorMsg });
+        }
+    }));
+
+
+    
+    passport.use('github', new GitHubStrategy({
+        clientID: CLIENT_ID,
+        clientSecret: CLIENT_SECRET,
+        callbackURL: 'http://localhost:8080/api/sessions/githubcallback'
+    }, async (accessToken, refreshToken, profile, done) => {
+        try {
+            let user = await UsersModel.findOne({ email: profile._json.email });
+            if (!user) {
+                user = {
+                    firstName: profile._json.name,
+                    lastName: '',
+                    email: profile._json.email,
+                    age: 11,
+                    password: '',
+                }
+                user = await UsersModel.create(user);
+            }
+            user = { ...user.toObject(), userRole: 'user' };
+            return done(null, user);
+        } catch (error) {
+            return done({ msg: 'Github login failure' });
         }
     }));
 

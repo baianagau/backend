@@ -1,5 +1,5 @@
 {
-  "name": "bronxbackend",
+  "name": "flowerybackend",
   "version": "1.0.0",
   "description": "Backend of e-commerce 4107 Flowery",
   "main": "src/app.js",
@@ -8,7 +8,7 @@
     "start": "nodemon ./src/app.js",
     "start:dev": "cross-env NODE_ENV=development nodemon ./src/app.js"
   },
-  "author": "Baiana Gau",
+  "author": "Nicolás Stegmann",
   "license": "ISC",
   "type": "module",
   "dependencies": {
@@ -25,6 +25,7 @@
     "mongoose-paginate-v2": "^1.7.1",
     "multer": "^1.4.5-lts.1",
     "passport": "^0.6.0",
+    "passport-github2": "^0.1.12",
     "passport-local": "^1.0.0",
     "shortid": "^2.2.16",
     "socket.io": "^4.6.2"
