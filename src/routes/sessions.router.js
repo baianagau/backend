@@ -1,70 +1,40 @@
 import { Router } from 'express';
-import passport from 'passport';
-
-// import { ADMIN_USER, ADMIN_PASSWORD } from '../utils/adminConfig.js';
-// import { createHash, isValidPassword } from '../utils/utils.js';
-
+import { passportCall } from '../utils/utils.js';
+import authConfig from '../utils/authConfig.js';
+import cookieParser from 'cookie-parser';
 
 const router = Router();
 
-router.post('/register', passport.authenticate('register', { failureRedirect: '/api/sessions/authFailureRegister', failureFlash: true }), async (req, res) => {
-    req.session.user = {
-        name: `${req.user.firstName} ${req.user.lastName}`,
-        email: req.user.email,
-        birthDate: req.user.birthDate,
-        userRole: 'user'
-    };
-    res.send({ status: 1, msg: "New registered" });
+router.use(cookieParser(authConfig.AUTH_SECRET));
+
+router.post('/register', passportCall('register'), async (req, res) => {
+    res.send({ status: 1, msg: "New flowerier registered" });
 })
 
-router.post('/login', passport.authenticate('login', { failureRedirect: '/api/sessions/authFailureLogin', failureFlash: true }), async (req, res) => {
-    if (!req.user) return res.status(400).send({ status: 0, msg: 'Wrong' });
-    req.session.user = {
-        name: `${req.user.firstName} ${req.user.lastName}`,
-        email: req.user.email,
-        birthDate: req.user.birthDate,
-        userRole: req.user.userRole
-    };
-    res.send({ status: 1, msg: 'successfully logged in', user: req.session.user });
+router.post('/login', passportCall('login', { session: false }), async (req, res) => {
+      res.cookie(authConfig.AUTH_COOKIE, req.user, { httpOnly: true }).send({ status: 1, msg: 'Flowerier successfully logged in', jwt: req.user });
 });
 
-router.post('/resetpassword', passport.authenticate('resetPassword', { failureRedirect: '/api/sessions/authFailureReset', failureFlash: true }), async (req, res) => {
-    res.send({ status: 1, msg: 'Password successfully reseted. You will be redirected to login page' });
+router.post('/resetpassword', passportCall('resetPassword'), async (req, res) => {
+    res.send({ status: 1, msg: 'Password successfully reseted.' });
 });
 
 router.post('/logout', (req, res) => {
-    req.session.destroy();
-    res.send({ status: 1, msg: 'successfully logged out' });
+    const jwtCookie = req.cookies[authConfig.AUTH_COOKIE];
+    if (!jwtCookie) {
+        return res.status(400).send({ status: 0, msg: 'Flowerier is not logged in.' });
+    }    
+    res.clearCookie(authConfig.AUTH_COOKIE).send({ status: 1, msg: 'Flowerier successfully logged out' });
 });
 
-router.get('/authFailureRegister', (req, res) => {
-    const error = req.flash('error')[0];
-    res.status(400).send({ status: 0, msg: error });
+router.get('/github', passportCall('github', { scope: ['user:email'] }), async (req, res) => { });
+
+router.get('/githubcallback', passportCall('github'), async (req, res) => {
+    res.cookie(authConfig.AUTH_COOKIE, req.user, { httpOnly: true }).redirect('/products');
 });
 
-router.get('/authFailureLogin', (req, res) => {
-    const error = req.flash('error')[0];
-    res.status(400).send({ status: 0, msg: error });
-});
-
-router.get('/authFailureReset', (req, res) => {
-    const error = req.flash('error')[0];
-    res.status(400).send({ status: 0, msg: error });
-});
-
-router.get('/github', passport.authenticate('github', { scope: ['user:email'] }), async (req, res) => { });
-
-router.get('/githubcallback', passport.authenticate('github', { failureRedirect: '/api/sessions/githubFailure' }), async (req, res) => {
-    req.session.user = {
-        name: `${req.user.firstName} ${req.user.lastName}`,
-        email: req.user.email,
-        userRole: req.user.userRole
-    };
-    res.redirect('/products');
-});
-
-router.get('/githubFailure', (req, res) => {
-    res.status(400).send({ status: 0, msg: 'Github authentication failure' });
+router.get('/currentuser', passportCall('jwt', { session: false }), async (req, res) => {
+    res.send({ status: 1, msg: 'Flowerier logged in', user: req.user.user });
 });
 
 export default router;
