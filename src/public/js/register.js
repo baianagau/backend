@@ -14,7 +14,8 @@ form.addEventListener('submit',async (e)=>{
     });
     const result = await response.json();
     if (result.status === 1) {
-        window.location.replace('/products');
+        alert(result.msg);
+        window.location.replace('/login');
     } else {
         alert(result.msg);
     }

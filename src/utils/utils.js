@@ -4,7 +4,6 @@ import path from 'path';
 import bcrypt from 'bcrypt';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
-import authConfig from '../utils/authConfig.js';
 
 export const createHash = (password) => bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 export const isValidPassword = (user, password) => bcrypt.compareSync(password, user.password);
@@ -29,7 +28,7 @@ export const passportCall = (strategy) => {
 export const tokenFromCookieExtractor = req => {
     let token = null;
     if (req && req.cookies) {
-        token = req?.cookies[authConfig.AUTH_COOKIE];
+        token = req?.cookies[process.env.AUTH_COOKIE];
     }
     return token;
 };
@@ -41,7 +40,7 @@ export const authorization = (role) => {
             return res.status(401).send({ status: 0, msg: 'Unauthorized' });
         }
         try {
-            const decodedToken = jwt.verify(token, authConfig.AUTH_SECRET);
+            const decodedToken = jwt.verify(token, process.env.AUTH_SECRET);
             req.user = decodedToken.user;
             if (role) {
                 const userRoles = Array.isArray(req.user.role) ? req.user.role : [req.user.role];
@@ -64,7 +63,7 @@ export const authorization = (role) => {
 
 export const jwtVerify = (token) => {
     try {
-        const decodedToken = jwt.verify(token, authConfig.AUTH_SECRET);
+        const decodedToken = jwt.verify(token, process.env.AUTH_SECRET);
         return decodedToken;
     } catch (error) {
         return false;

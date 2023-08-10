@@ -1,105 +1,37 @@
+import configureCommander from './config/commander.config.js';
+import configureDotenv, { envFileName } from './config/dotenv.config.js';
+import configureMongo from './config/mongoDB.config.js';
 import express from 'express';
-import handlebars from 'express-handlebars';
-import cors from 'cors';
-import path from 'path';
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
-import passport from 'passport';
-import { Server } from 'socket.io';
-import { productsUpdated, chat } from './utils/socketUtils.js';
 import displayRoutes from 'express-routemap';
-import mongoose from 'mongoose';
-import flash from 'connect-flash';
-
-import __dirname from './utils/utils.js'
-import productsRouter from './routes/products.router.js'
-import cartsRouter from './routes/carts.router.js'
-import messagesRouter from './routes/messages.router.js'
-import viewsRouter from './routes/views.router.js'
-import sessionsRouter from './routes/sessions.router.js'
-import MONGO from './utils/mongoDBconfig.js';
+import passport from 'passport';
 import initializePassport from './config/passport.config.js';
-import cookieParser from 'cookie-parser';
-// import  { SECRET_D } from './utils/adminConfig.js'
-const PORT = 8080;
+import configureMiddlewares from './config/middlewares.config.js';
+import configureHandlebars from './config/handlebars.config.js';
+import configurePublicFolder from './config/public.config.js';
+import routes from './routes/index.js';
+import configureSocket from './config/socket.config.js';
 
-//Commander config
-const command = new Command();
-command
-    .option('-e, --env <env>', 'Environment', 'development')
-    .parse(process.argv);
+//Environment
+const env = configureCommander();
+configureDotenv(env);
 
-const options = command.opts();
-process.env.NODE_ENV = options.env;
+//MongoDB
+configureMongo();
 
-// const PORT = mongoDBConfig.PORT;
-
-//Express middlewares config
+//Application
 const app = express();
-app.use(express.json())
-app.use(express.urlencoded({extended:true}));
-app.use(cors());
-
-//Handlebars config
-app.engine('handlebars', handlebars.engine());
-app.set('views', __dirname + '/views');
-app.set('view engine', 'handlebars');
-
-//Public folder config
-app.use('/files', express.static(path.join(__dirname, './public')));
-
-//Routes
-app.use('/api/alive', (req, res) => {
-    res.status(200).json({ status: 1, message: ' backend is alive' });
-});
-app.use('/api/products', productsRouter);
-app.use('/api/carts', cartsRouter);
-app.use('/api/messages', messagesRouter);
-app.use('/api/sessions', sessionsRouter);
-app.use('/', viewsRouter);
-
-// db
-mongoose.connect(MONGO, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log('Conexión exitosa a MongoDB');
-    
-  })
-  .catch((error) => {
-    console.error('Error al conectar a MongoDB:', error);
-  });
-
-//Session config
-app.use(session({
-  store: new MongoStore({
-      mongoUrl: MONGO,
-      ttl: 3600
-  }),
-  secret: "secret",
-  resave: false,
-  saveUninitialized: false
-}))
-
-//Passport config
+configureMiddlewares(app);
+configureHandlebars(app);
 initializePassport(passport);
-app.use(flash());
 app.use(passport.initialize());
-app.use(passport.session());
+configurePublicFolder(app);
+routes(app);
 
-
-
+const PORT = process.env.PORT;
 
 const serverHttp = app.listen(PORT, () => {
     displayRoutes(app);
-    console.log(`Backend server is now up on port ${PORT}`)
+    console.log(`Backend server is now up on port ${PORT} in ${env} mode using ${envFileName} file`)
 });
 
-
-const io = new Server(serverHttp);
-
-app.set('io', io);
-
-io.on('connection', socket => {
-    console.log('New client connected', socket.id);
-    productsUpdated(io);
-    chat(socket, io);
-});
+configureSocket(serverHttp, app);

@@ -61,7 +61,7 @@ const test = async () => {
 
     //Test Case 9: Agrego un nuevo producto
     try {
-        await productManager.addProduct({title: 'bulbo', price: 1000, thumbnail: 'Hola', code: 'nico2', stock: 7});
+        await productManager.addProduct({title: 'bulbo', price: 1000, thumbnail: 'Hola', code: 'bai2', stock: 7});
     } catch (error) {
         console.log('Test Case 9: ', error.message); 
     }
@@ -97,7 +97,7 @@ const test = async () => {
 
     //Test Case 13: Agrego un nuevo producto
     try {
-        await productManager.addProduct({title: 'bulbo raiz', price: 1000, thumbnail: 'Hola', code: 'nico4', stock: 0});
+        await productManager.addProduct({title: 'bulbo raiz', price: 1000, thumbnail: 'Hola', code: 'bai4', stock: 0});
     } catch (error) {
         console.log('Test Case 13: ', error.message); 
     }
@@ -111,7 +111,7 @@ const test = async () => {
 
    //Test Case 15: Agrego un nuevo producto para controlar ID
    try {
-        await productManager.addProduct({title: 'bulbo raiz santi', price: 1000, thumbnail: 'Hola', code: 'nico88', stock: 0});
+        await productManager.addProduct({title: 'bulbo raiz santi', price: 1000, thumbnail: 'Hola', code: 'bai3', stock: 0});
     } catch (error) {
         console.log('Test Case 15: ', error.message); 
     }

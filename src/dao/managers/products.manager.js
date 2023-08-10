@@ -5,7 +5,7 @@ class ProductManager {
     this.productsModel = ProductsModel;
   }
 
-  getProducts = async (limit = 10, page = 1, sort, category, available, baseUrl) => {
+  getProducts = async (limit = 10, page = 1, sort, category, available) => {
     try {
       let query = this.productsModel.find();
       if (category) {
@@ -17,20 +17,16 @@ class ProductManager {
         const lowerAvailable = available.toLowerCase();
         if (lowerAvailable  === 'true') {
           query = query.where('stock').gt(0);
-        } else if (lowerAvailable === 'false') {
-          query = query.where('stock').equals(0);
         } else {
-          throw new Error('Invalid available value. true or false expected');
+          query = query.where('stock').equals(0);
         }
       }
       if (sort) {
         const lowerSort = sort.toLowerCase();
         if (lowerSort === 'asc') {
           query = query.sort({ price: 1 });
-        } else if (lowerSort === 'desc') {
-          query = query.sort({ price: -1 });
         } else {
-          throw new Error('Invalid sort value. asc or desc expected');
+          query = query.sort({ price: -1 });
         }
       }
 
@@ -44,25 +40,7 @@ class ProductManager {
         }
       });
 
-      // Build navigation links
-      let navLinks = {};
-
-      if (baseUrl) {
-        const sortOptions = ['asc', 'desc'];
-        const availableOptions = ['true', 'false'];
-        const sortQuery = sort && sortOptions.includes(sort.toLowerCase()) ? `&sort=${sort}` : '';
-        const categoryQuery = category ? `&category=${encodeURIComponent(category)}` : '';
-        const availableQuery = available && availableOptions.includes(available.toLowerCase()) ? `&available=${available}` : '';
-        navLinks = {
-            firstLink: products.totalPages > 1? `${baseUrl}?limit=${limit}&page=1${sortQuery}${categoryQuery}${availableQuery}` : null,
-            prevLink: products.hasPrevPage ? `${baseUrl}?limit=${limit}&page=${products.prevPage}${sortQuery}${categoryQuery}${availableQuery}` : null,
-            nextLink: products.hasNextPage ? `${baseUrl}?limit=${limit}&page=${products.nextPage}${sortQuery}${categoryQuery}${availableQuery}` : null,
-            lastLink: products.totalPages > 1? `${baseUrl}?limit=${limit}&page=${products.totalPages}${sortQuery}${categoryQuery}${availableQuery}` : null
-        };
-      }
-      const productsWithLinks = { ...products, ...navLinks };
-      return productsWithLinks;
-
+      return products;
     } catch (error) {
       throw new Error(`Failed to retrieve: ${error.message}`);
     }
@@ -80,15 +58,21 @@ class ProductManager {
   getProductById = async (productId) => {
     try {
       const product = await this.productsModel.findById(productId);
-      if (!product) {
-        throw new Error('Product not found');
-      }
       return product;
     } catch (error) {
       throw new Error(`Failed to retrieve product: ${error.message}`);
     }
   }
 
+  getProductByCode = async (productCode) => {
+    try {
+      const product = await this.productsModel.findOne({ code: productCode });
+      return product;
+    } catch (error) {
+      throw new Error(`Failed to retrieve product: ${error.message}`);
+    }
+  }
+  
   deleteProduct = async (productId) => {
     try {
       const product = await this.productsModel.findByIdAndDelete(productId);
@@ -103,14 +87,6 @@ class ProductManager {
   updateProduct = async (productId, updatedFields) => {
     try {
       const { code, price, stock, thumbnails, ...otherFields } = updatedFields;
-
-      if (code) {
-        const existingProduct = await this.productsModel.findOne({ code: code });
-        if (existingProduct && existingProduct._id.toString() !== productId) {
-          throw new Error('The specified code is in use by another existing product');
-        }
-      }
-
       const updatedProduct = await this.productsModel.findByIdAndUpdate(
         productId,
         {

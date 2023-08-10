@@ -24,7 +24,7 @@ Swal.fire({
 }).then((result) => {
     user = result.value;
     let title = document.getElementById('title');
-    title.innerHTML = `Bienvenido ${user} a Flowery 4107 Webchat!`;
+    title.innerHTML = `Bienvenido ${user} a Webchat!`;
     socket.emit('authenticated', user);
 });    
 

@@ -1,7 +1,4 @@
 node_modules/
 package-lock.json
 
-#  .env
-# src/utils/mongoDBConfig.js
-# src/utils/adminConfig.js
-# src/utils/githubConfig.js
+.env*
