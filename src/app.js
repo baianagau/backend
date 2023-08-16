@@ -11,6 +11,7 @@ import configurePublicFolder from './config/public.config.js';
 import routes from './routes/index.js';
 import configureSocket from './config/socket.config.js';
 
+
 //Environment
 const env = configureCommander();
 configureDotenv(env);
