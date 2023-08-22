@@ -1,8 +1,8 @@
-import { ProductManager } from '../dao/managers/products.manager.js';
+import { productsRepository } from '../repositories/index.js';
 
 class ProductService {
     constructor() {
-        this.productManager = new ProductManager();
+        this.productRepository = productsRepository;
     }
 
     getProducts = async (limit = 10, page = 1, sort, category, available, baseUrl) => {
@@ -43,7 +43,7 @@ class ProductService {
                 }
             }
 
-            const products = await this.productManager.getProducts(limit, page, sort, category, available);
+            const products = await this.productRepository.getProducts(limit, page, sort, category, available);
 
             // Build navigation links
             let navLinks = {};
@@ -70,7 +70,7 @@ class ProductService {
 
     getProductById = async (productId) => {
         try {
-            const product = await this.productManager.getProductById(productId);
+            const product = await this.productRepository.getProductById(productId);
             if (!product) {
                 throw new Error('Product not found');
             }
@@ -88,7 +88,7 @@ class ProductService {
             if (!isValidOperation) {
                 throw new Error('Invalid fields!');
             }
-            const productWithSameCode = await this.productManager.getProductByCode(product.code);
+            const productWithSameCode = await this.productRepository.getProductByCode(product.code);
             if (productWithSameCode) {
                 throw new Error('Product with same code already exists');
             }
@@ -121,7 +121,7 @@ class ProductService {
     addProduct = async (newProductFields) => {
         try {
             await this.productFieldsValidation(newProductFields);
-            return await this.productManager.addProduct(newProductFields);
+            return await this.productRepository.addProduct(newProductFields);
         } catch (error) {
             throw error;
         }
@@ -130,11 +130,11 @@ class ProductService {
     updateProduct = async (productId, updatedProductFields) => {
         try {
             await this.productFieldsValidation(updatedProductFields);
-            const product = await this.productManager.getProductById(productId);
+            const product = await this.productRepository.getProductById(productId);
             if (!product) {
                 throw new Error('Product not found');
             }
-            return await this.productManager.updateProduct(productId, updatedProductFields);
+            return await this.productRepository.updateProduct(productId, updatedProductFields);
         } catch (error) {
             throw error;
         }
@@ -142,15 +142,47 @@ class ProductService {
 
     deleteProduct = async (productId) => {
         try {
-            const product = await this.productManager.getProductById(productId);
+            const product = await this.productRepository.getProductById(productId);
             if (!product) {
                 throw new Error('Product not found');
             }
-            return await this.productManager.deleteProduct(productId);
+            return await this.productRepository.deleteProduct(productId);
         } catch (error) {
             throw error;
         }
     };
+
+    getProductStock = async (productId) => {
+        try {
+            const product = await this.productRepository.getProductById(productId);
+            if (!product) {
+                throw new Error('Product not found');
+            }
+            return product.stock;
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    updateProductStock = async (productId, quantity) => {
+        try {
+            if (!quantity ) {
+                throw new Error('Invalid quantity');
+            }
+            const product = await this.productRepository.getProductById(productId);
+            if (!product) {
+                throw new Error('Product not found');
+            }
+            const newStock = product.stock + quantity;
+            if (newStock < 0) {
+                throw new Error('Not enough stock');
+            }
+            return await this.productRepository.updateProduct(productId, { stock: newStock });
+        } catch (error) {
+            throw error;
+        }
+    };
+
 }
 
 export { ProductService }

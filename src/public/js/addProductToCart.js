@@ -11,28 +11,27 @@ const addToCart = async (event) => {
     let cartId = localStorage.getItem('cartId');
     if (!cartId) {
         // Si no hay un cartId almacenado, crear un nuevo carrito
-        fetch('/api/carts', {
+        const createCartFetch = await fetch('/api/carts', {
           method: 'POST'
-        })
-          .then(response => response.json())
-          .then(data => {
-            cartId = data.cartId;
-            localStorage.setItem('cartId', cartId); // Almacenar cartId en localStorage
-          })
-          .catch(error => {
-            console.error('Error al crear un nuevo carrito:', error);
-            return;
-          });
+        });
+
+        const result = await createCartFetch.json();
+        if (result.status === 1) {
+            cartId = result.cartId;
+            localStorage.setItem('cartId', cartId);
+          } else {
+            console.error('Error al crear un nuevo carrito');
+          };
     }
 
     // Agregar producto al carrito
-    const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
+    const addProductFetch = await fetch(`/api/carts/${cartId}/products/${productId}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         }
     });
-    const result = await response.json();
+    const result = await addProductFetch.json();
     if (result.status === 1) {
         alert(`Producto agregado al carrito ${cartId} exitosamente!`);
     } else {

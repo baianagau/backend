@@ -14,7 +14,7 @@ const createCart = async (req, res) => {
 const getCartById = async (req, res) => {
     try {
         const cartId = req.params.cartId;
-        const cart = await cartService.getCart(cartId);
+        const cart = await cartService.getCartById(cartId);
         res.json({ status: 1, cart });
     } catch (error) {
         res.status(500).json({ status: 0, error: error.message });
@@ -77,6 +77,16 @@ const emptyCart = async (req, res) => {
     }
 };
 
+const checkoutCart = async (req, res) => {
+    const cartId = req.params.cartId;
+    try {
+        const purchaseCartResult = await cartService.checkoutCart(cartId, req.user.email);
+        res.status(201).send({ status: 1, msg: 'Cart successfully purchased', purchaseCartResult: purchaseCartResult });
+    } catch (error) {
+        res.status(500).json({ status: 0, error: error.message });
+    }
+};
+
 export default {
     createCart,
     getCartById,
@@ -84,5 +94,6 @@ export default {
     addProductToCart,
     removeProductFromCart,
     updateProductQuantity,
-    emptyCart
+    emptyCart,
+    checkoutCart
 };

@@ -32,11 +32,11 @@ router.get('/resetpassword', publicAccess, viewsController.resetPassword);
 
 router.get('/', privateAccess, viewsController.userProfile);
 
-router.get('/staticProducts', privateAccess, viewsController.products);
+router.get('/staticProducts', privateAccess, viewsController.staticProducts);
 
 router.get('/realtimeproducts', privateAccess, viewsController.realTimeProducts);
 
-router.get('/webchat', viewsController.webchat);
+router.get('/webchat', privateAccess, viewsController.webchat);
 
 router.get('/products', privateAccess, viewsController.products);
 

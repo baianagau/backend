@@ -13,8 +13,8 @@ const getMessages = async (req, res) => {
 
 const postMessage = async (req, res) => {
     try {
-        const { user, message } = req.body;
-        const newMessage = await messageService.addMessage(user, message);
+        const { message } = req.body;
+        const newMessage = await messageService.addMessage(req.user.email, message);
         res.send({status: 1, msg: 'Message added successfully', message: newMessage});
     } catch (error) {
         res.status(500).send({status: 0, msg: error.message});

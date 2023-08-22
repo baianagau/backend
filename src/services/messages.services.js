@@ -1,14 +1,14 @@
-import { MessagesManager } from '../dao/managers/messages.manager.js';
+import { messagesRepository } from '../repositories/index.js';
 
 class MessageService {
     
         constructor() {
-            this.messagesManager = new MessagesManager();
+            this.messagesRepository = messagesRepository;
         }
     
         getMessages = async () => {
             try {
-                const messages = await this.messagesManager.getMessages();
+                const messages = await this.messagesRepository.getMessages();
                 return messages;
             } catch (error) {
                 throw error;
@@ -32,7 +32,7 @@ class MessageService {
                 if (message.length > 280) {
                     throw new Error('Message cannot be longer than 280 characters');
                 }
-                const newMessage = await this.messagesManager.addMessage(user, message);
+                const newMessage = await this.messagesRepository.addMessage(user, message);
                 return newMessage;
             } catch (error) {
                 throw error;

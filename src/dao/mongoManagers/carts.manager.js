@@ -1,7 +1,7 @@
 import CartsModel from '../models/carts.model.js';
 import ProductsModel from '../models/products.model.js';
 
-class CartManager {
+class CartMongoManager {
   constructor() {
     this.cartModel = CartsModel;
     this.productModel = ProductsModel;
@@ -40,4 +40,4 @@ class CartManager {
   }
 }
 
-export { CartManager };
+export default CartMongoManager;

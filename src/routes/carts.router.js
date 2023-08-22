@@ -4,18 +4,20 @@ import cartController from '../controllers/carts.controller.js';
 
 const router = Router();
 
-router.post('/', authorization(['admin', 'user']), cartController.createCart);
+router.post('/', authorization(['user']), cartController.createCart);
 
 router.get('/:cartId', authorization(['admin', 'user']), cartController.getCartById);
 
-router.put('/:cartId', authorization(['admin', 'user']), cartController.updateCartById);
+router.put('/:cartId', authorization(['user']), cartController.updateCartById);
 
-router.post('/:cartId/products/:productId', authorization(['admin', 'user']), cartController.addProductToCart);
+router.post('/:cartId/products/:productId', authorization(['user']), cartController.addProductToCart);
 
-router.delete('/:cartId/products/:productId', authorization(['admin', 'user']), cartController.removeProductFromCart);
+router.delete('/:cartId/products/:productId', authorization(['user']), cartController.removeProductFromCart);
 
-router.put('/:cartId/products/:productId', authorization(['admin', 'user']), cartController.updateProductQuantity);
+router.put('/:cartId/products/:productId', authorization(['user']), cartController.updateProductQuantity);
 
-router.delete('/:cartId', authorization(['admin', 'user']), cartController.emptyCart);
+router.delete('/:cartId', authorization(['user']), cartController.emptyCart);
+
+router.post('/:cartId/checkout', authorization(['user']), cartController.checkoutCart);
 
 export default router;
