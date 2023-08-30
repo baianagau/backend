@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { authorization } from '../utils/utils.js'
 import cartController from '../controllers/carts.controller.js';
+import EnumErrors from '../utils/errorHandler/enum.js';
+import CustomError from '../utils/errorHandler/CustomError.js';
 
 const router = Router();
 
@@ -19,5 +21,16 @@ router.put('/:cartId/products/:productId', authorization(['user']), cartControll
 router.delete('/:cartId', authorization(['user']), cartController.emptyCart);
 
 router.post('/:cartId/checkout', authorization(['user']), cartController.checkoutCart);
+
+
+router.all('*', (req, res) => {
+ CustomError.createError({
+        name: 'Routing Error',
+        message: 'Invalid route',
+        type: EnumErrors.ROUTING_ERROR.type,
+        recievedParams: { route: req.originalUrl },
+        statusCode: EnumErrors.ROUTING_ERROR.statusCode
+    });    
+});
 
 export default router;

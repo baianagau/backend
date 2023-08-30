@@ -3,7 +3,7 @@ import { ProductService } from "../services/products.services.js";
 
 const productService = new ProductService();
 
-const getProducts = async (req, res) => {
+const getProducts = async (req, res, next) => {
     try {
         const { limit = 10, page = 1, sort, category, available } = req.query;
         // Get baseUrl for navigation links
@@ -11,21 +11,21 @@ const getProducts = async (req, res) => {
         const products = await productService.getProducts(limit, page, sort, category, available, baseUrl);
         res.send({ status: 1, ...products });
     } catch (error) {
-        res.status(500).send({ status: 0, msg: error.message });
+        next(error);
     }
 };
 
-const getProductById = async (req, res) => {
+const getProductById = async (req, res, next) => {
     try {
         const productId = req.params.productId;
         const product = await productService.getProductById(productId)
         res.send({ status: 1, product: product });
     } catch (error) {
-        res.status(404).send({ status: 0, msg: error.message });
+        next(error);
     }
 };
 
-const addProduct = async (req, res) => {
+const addProduct = async (req, res, next) => {
     try {
         const newProductFields = req.body;
         const files = req.files;
@@ -39,11 +39,11 @@ const addProduct = async (req, res) => {
         productsUpdated(req.app.get('io'));
         res.send({ status: 1, msg: 'Product added successfully', product: newProduct });
     } catch (error) {
-        res.status(500).send({ status: 0, msg: error.message });
+        next(error);
     }
 };
 
-const updateProductById = async (req, res) => {
+const updateProductById = async (req, res, next) => {
     try {
         const productId = req.params.productId;
         const updatedProductFields = req.body;
@@ -53,18 +53,27 @@ const updateProductById = async (req, res) => {
         productsUpdated(req.app.get('io'));
         res.send({ status: 1, msg: 'Product updated successfully', product: updatedProduct });
     } catch (error) {
-        res.status(404).send({ status: 0, msg: error.message });
+        next(error);
     }
 };
 
-const deleteProductById = async (req, res) => {
+const deleteProductById = async (req, res, next) => {
     try {
         const productId = req.params.productId;
         await productService.deleteProduct(productId);
         productsUpdated(req.app.get('io'));
         res.send({ status: 1, msg: 'Product deleted successfully' });
     } catch (error) {
-        res.status(404).send({ status: 0, msg: error.message });
+        next(error);
+    }
+};
+
+const getMockingProducts = async (req, res, next) => {
+    try {
+        const products = await productService.getMockingProducts();
+        res.send({ status: 1, products: products });
+    } catch (error) {
+        next(error);
     }
 };
 
@@ -73,5 +82,6 @@ export default {
     getProductById,
     addProduct,
     updateProductById,
-    deleteProductById
+    deleteProductById,
+    getMockingProducts
 };

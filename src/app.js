@@ -5,7 +5,7 @@ import configureCommander from './config/commander.config.js';
 import configureDotenv, { envFileName } from './config/dotenv.config.js';
 import configureMongo from './config/mongoDB.config.js';
 import initializePassport from './config/passport.config.js';
-import configureMiddlewares from './config/middlewares.config.js';
+import {configureMiddlewares} from './config/middlewares.config.js';
 import configureHandlebars from './config/handlebars.config.js';
 import configurePublicFolder from './config/public.config.js';
 import routes from './routes/index.js';

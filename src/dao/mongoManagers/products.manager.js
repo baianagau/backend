@@ -1,4 +1,6 @@
 import ProductsModel from '../models/products.model.js';
+import EnumErrors from '../../utils/errorHandler/enum.js';
+import CustomError from '../../utils/errorHandler/CustomError.js';
 
 class ProductMongoManager {
   constructor() {
@@ -15,7 +17,7 @@ class ProductMongoManager {
       }
       if (available) {
         const lowerAvailable = available.toLowerCase();
-        if (lowerAvailable  === 'true') {
+        if (lowerAvailable === 'true') {
           query = query.where('stock').gt(0);
         } else {
           query = query.where('stock').equals(0);
@@ -42,7 +44,12 @@ class ProductMongoManager {
 
       return products;
     } catch (error) {
-      throw new Error(`Failed to retrieve: ${error.message}`);
+      CustomError.createError({
+        name: 'getProducts Error',
+        message: `Failed to retrieve: ${error.message}`,
+        type: EnumErrors.DATABASE_ERROR.type,
+        statusCode: EnumErrors.DATABASE_ERROR.statusCode
+      });
     }
   }
 
@@ -51,7 +58,12 @@ class ProductMongoManager {
       const newProduct = await this.productsModel.create(newFields);
       return newProduct;
     } catch (error) {
-      throw new Error(`Failed to add product: ${error.message}`);
+      CustomError.createError({
+        name: 'addProduct Error',
+        message: `Failed to add product: ${error.message}`,
+        type: EnumErrors.DATABASE_ERROR.type,
+        statusCode: EnumErrors.DATABASE_ERROR.statusCode
+      });
     }
   }
 
@@ -60,7 +72,12 @@ class ProductMongoManager {
       const product = await this.productsModel.findById(productId);
       return product;
     } catch (error) {
-      throw new Error(`Failed to retrieve product: ${error.message}`);
+      CustomError.createError({
+        name: 'getProductById Error',
+        message: `Failed to retrieve: ${error.message}`,
+        type: EnumErrors.DATABASE_ERROR.type,
+        statusCode: EnumErrors.DATABASE_ERROR.statusCode
+      });
     }
   }
 
@@ -69,18 +86,33 @@ class ProductMongoManager {
       const product = await this.productsModel.findOne({ code: productCode });
       return product;
     } catch (error) {
-      throw new Error(`Failed to retrieve product: ${error.message}`);
+      CustomError.createError({
+        name: 'getProductByCode Error',
+        message: `Failed to retrieve: ${error.message}`,
+        type: EnumErrors.DATABASE_ERROR.type,
+        statusCode: EnumErrors.DATABASE_ERROR.statusCode
+      });
     }
   }
-  
+
   deleteProduct = async (productId) => {
     try {
       const product = await this.productsModel.findByIdAndDelete(productId);
       if (!product) {
-        throw new Error('Product not found');
+        CustomError.createError({
+          name: 'deleteProduct Error',
+          message: 'Product not found',
+          type: EnumErrors.DATABASE_ERROR.type,
+          statusCode: EnumErrors.DATABASE_ERROR.statusCode
+        });        
       }
     } catch (error) {
-      throw new Error(`Failed to delete product: ${error.message}`);
+      CustomError.createError({
+        name: 'deleteProduct Error',
+        message: `Failed to delete product: ${error.message}`,
+        type: EnumErrors.DATABASE_ERROR.type,
+        statusCode: EnumErrors.DATABASE_ERROR.statusCode
+      });
     }
   }
 
@@ -102,13 +134,23 @@ class ProductMongoManager {
       );
 
       if (!updatedProduct) {
-        throw new Error('Product not found');
+        CustomError.createError({
+          name: 'updateProduct Error',
+          message: 'Product not found',
+          type: EnumErrors.DATABASE_ERROR.type,
+          statusCode: EnumErrors.DATABASE_ERROR.statusCode
+        });        
       }
-  
+
       return updatedProduct;
 
     } catch (error) {
-      throw new Error(`Failed to update product: ${error.message}`);
+      CustomError.createError({
+        name: 'deleteProduct Error',
+        message: `Failed to update product: ${error.message}`,
+        type: EnumErrors.DATABASE_ERROR.type,
+        statusCode: EnumErrors.DATABASE_ERROR.statusCode
+      });
     }
   }
 }

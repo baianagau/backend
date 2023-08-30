@@ -1,4 +1,7 @@
 import { productsRepository } from '../repositories/index.js';
+import { mockingProducts } from '../utils/mocks.js';
+import EnumErrors from '../utils/errorHandler/enum.js';
+import CustomError from '../utils/errorHandler/CustomError.js';
 
 class ProductService {
     constructor() {
@@ -10,36 +13,71 @@ class ProductService {
             if (available) {
                 const lowerAvailable = available.toLowerCase();
                 if (lowerAvailable !== 'true' && lowerAvailable !== 'false') {
-                    throw new Error('Invalid available value. true or false expected');
+                    CustomError.createError({
+                        name: 'getProducts Error',
+                        message: 'Invalid available value. true or false expected',                        
+                        type: EnumErrors.INVALID_FIELDS_VALUE_ERROR.type,
+                        recievedParams: { available },
+                        statusCode: EnumErrors.INVALID_FIELDS_VALUE_ERROR.statusCode
+                    });
                 }
             }
             if (sort) {
                 const lowerSort = sort.toLowerCase();
                 if (lowerSort !== 'asc' && lowerSort !== 'desc') {
-                    throw new Error('Invalid sort value. asc or desc expected');
+                    CustomError.createError({
+                        name: 'getProducts Error',
+                        message: 'Invalid sort value. asc or desc expected',                        
+                        type: EnumErrors.INVALID_FIELDS_VALUE_ERROR.type,
+                        recievedParams: { sort },
+                        statusCode: EnumErrors.INVALID_FIELDS_VALUE_ERROR.statusCode
+                    });
                 }
             }
             if (category) {
                 const trimmedCategory = category.trim();
                 if (trimmedCategory.length === 0) {
-                    throw new Error('Invalid category value. Non-empty string expected');
+                    CustomError.createError({
+                        name: 'getProducts Error',
+                        message: 'Invalid category value. Non-empty string expected',                        
+                        type: EnumErrors.INVALID_FIELDS_VALUE_ERROR.type,
+                        statusCode: EnumErrors.INVALID_FIELDS_VALUE_ERROR.statusCode
+                    });
                 }
             }
             if (limit) {
                 const parsedLimit = parseInt(limit);
                 if (isNaN(parsedLimit) || parsedLimit < 1) {
-                    throw new Error('Invalid limit value. Positive integer expected');
+                    CustomError.createError({
+                        name: 'getProducts Error',
+                        message: 'Invalid limit value. Positive integer expected',                        
+                        type: EnumErrors.INVALID_FIELDS_VALUE_ERROR.type,
+                        recievedParams: { limit },
+                        statusCode: EnumErrors.INVALID_FIELDS_VALUE_ERROR.statusCode
+                    });
                 }
             }
             if (page) {
                 const parsedPage = parseInt(page);
                 if (isNaN(parsedPage) || parsedPage < 1) {
-                    throw new Error('Invalid page value. Positive integer expected');
+                    CustomError.createError({
+                        name: 'getProducts Error',
+                        message: 'Invalid page value. Positive integer expected',                        
+                        type: EnumErrors.INVALID_FIELDS_VALUE_ERROR.type,
+                        recievedParams: { page },
+                        statusCode: EnumErrors.INVALID_FIELDS_VALUE_ERROR.statusCode
+                    });
                 }
             }
             if (baseUrl) {
                 if (typeof baseUrl !== 'string' || baseUrl.length === 0) {
-                    throw new Error('Invalid baseUrl value. Non-empty string expected');
+                    CustomError.createError({
+                        name: 'getProducts Error',
+                        message: 'Invalid baseUrl value. Non-empty string expected',                        
+                        type: EnumErrors.INVALID_PROGRAM_DATA_ERROR.type,
+                        recievedParams: { baseUrl },
+                        statusCode: EnumErrors.INVALID_PROGRAM_DATA_ERROR.statusCode
+                    });
                 }
             }
 
@@ -72,7 +110,13 @@ class ProductService {
         try {
             const product = await this.productRepository.getProductById(productId);
             if (!product) {
-                throw new Error('Product not found');
+                CustomError.createError({
+                    name: 'getProductById Error',
+                    message: 'Product not found',                        
+                    type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
+                    recievedParams: { productId },
+                    statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
+                });
             }
             return product;
         } catch (error) {
@@ -86,31 +130,66 @@ class ProductService {
             const receivedFields = Object.keys(product);
             const isValidOperation = receivedFields.every((field) => allowedFields.includes(field));
             if (!isValidOperation) {
-                throw new Error('Invalid fields!');
+                CustomError.createError({
+                    name: 'productFieldsValidation Error',
+                    message: 'Invalid fields',                        
+                    type: EnumErrors.INVALID_BODY_STRUCTURE_ERROR.type,
+                    recievedParams: { product },
+                    statusCode: EnumErrors.INVALID_BODY_STRUCTURE_ERROR.statusCode
+                });
             }
             const productWithSameCode = await this.productRepository.getProductByCode(product.code);
             if (productWithSameCode) {
-                throw new Error('Product with same code already exists');
+                CustomError.createError({
+                    name: 'productFieldsValidation Error',
+                    message: 'Product with same code already exists',                        
+                    type: EnumErrors.UNIQUE_KEY_VIOLATION_ERROR.type,
+                    recievedParams: { code: product.code },
+                    statusCode: EnumErrors.UNIQUE_KEY_VIOLATION_ERROR.statusCode
+                });
             }
             if (product.price) {
                 const parsedPrice = parseFloat(product.price);
                 if (isNaN(parsedPrice) || parsedPrice < 0) {
-                    throw new Error('Invalid price value. Positive number expected');
+                    CustomError.createError({
+                        name: 'productFieldsValidation Error',
+                        message: 'Invalid price value. Positive number expected',                        
+                        type: EnumErrors.INVALID_FIELDS_VALUE_ERROR.type,
+                        recievedParams: { price: product.price },
+                        statusCode: EnumErrors.INVALID_FIELDS_VALUE_ERROR.statusCode
+                    });
                 }
             }
             if (product.stock) {
                 const parsedStock = parseInt(product.stock);
                 if (isNaN(parsedStock) || parsedStock < 0) {
-                    throw new Error('Invalid stock value. Positive integer expected');
+                    CustomError.createError({
+                        name: 'productFieldsValidation Error',
+                        message: 'Invalid stock value. Positive integer expected',                        
+                        type: EnumErrors.INVALID_FIELDS_VALUE_ERROR.type,
+                        recievedParams: { stock: product.stock },
+                        statusCode: EnumErrors.INVALID_FIELDS_VALUE_ERROR.statusCode
+                    });
                 }
             }
             if ('category' in product) {
                 const trimmedCategory = product.category.trim();
                 if (typeof trimmedCategory !== 'string') {
-                    throw new Error('Invalid category value. String expected');
+                    CustomError.createError({
+                        name: 'productFieldsValidation Error',
+                        message: 'Invalid category value. String expected',                        
+                        type: EnumErrors.INVALID_TYPES_ERROR.type,
+                        recievedParams: { category: product.category },
+                        statusCode: EnumErrors.INVALID_TYPES_ERROR.statusCode
+                    });                    
                 }
                 if (trimmedCategory.length === 0) {
-                    throw new Error('Invalid category value. Non-empty string expected');
+                    CustomError.createError({
+                        name: 'productFieldsValidation Error',
+                        message: 'Invalid category value. Non-empty string expected',                        
+                        type: EnumErrors.INVALID_FIELDS_VALUE_ERROR.type,
+                        statusCode: EnumErrors.INVALID_FIELDS_VALUE_ERROR.statusCode
+                    });                    
                 }
             }
         } catch (error) {
@@ -132,7 +211,13 @@ class ProductService {
             await this.productFieldsValidation(updatedProductFields);
             const product = await this.productRepository.getProductById(productId);
             if (!product) {
-                throw new Error('Product not found');
+                CustomError.createError({
+                    name: 'updateProduct Error',
+                    message: 'Product not found',                        
+                    type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
+                    recievedParams: { productId },
+                    statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
+                });
             }
             return await this.productRepository.updateProduct(productId, updatedProductFields);
         } catch (error) {
@@ -144,7 +229,13 @@ class ProductService {
         try {
             const product = await this.productRepository.getProductById(productId);
             if (!product) {
-                throw new Error('Product not found');
+                CustomError.createError({
+                    name: 'deleteProduct Error',
+                    message: 'Product not found',                        
+                    type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
+                    recievedParams: { productId },
+                    statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
+                });
             }
             return await this.productRepository.deleteProduct(productId);
         } catch (error) {
@@ -156,7 +247,13 @@ class ProductService {
         try {
             const product = await this.productRepository.getProductById(productId);
             if (!product) {
-                throw new Error('Product not found');
+                CustomError.createError({
+                    name: 'getProductStock Error',
+                    message: 'Product not found',                        
+                    type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
+                    recievedParams: { productId },
+                    statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
+                });
             }
             return product.stock;
         } catch (error) {
@@ -171,11 +268,23 @@ class ProductService {
             }
             const product = await this.productRepository.getProductById(productId);
             if (!product) {
-                throw new Error('Product not found');
+                CustomError.createError({
+                    name: 'updateProductStock Error',
+                    message: 'Product not found',                        
+                    type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
+                    recievedParams: { productId },
+                    statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
+                });
             }
             const newStock = product.stock + quantity;
             if (newStock < 0) {
-                throw new Error('Not enough stock');
+                CustomError.createError({
+                    name: 'updateProductStock Error',
+                    message: 'Not enough stock',                        
+                    type: EnumErrors.INVALID_FIELDS_VALUE_ERROR.type,
+                    recievedParams: { quantity },
+                    statusCode: EnumErrors.INVALID_FIELDS_VALUE_ERROR.statusCode
+                });                    
             }
             return await this.productRepository.updateProduct(productId, { stock: newStock });
         } catch (error) {
@@ -183,6 +292,14 @@ class ProductService {
         }
     };
 
+    getMockingProducts = async () => {
+        try {
+            const products = await mockingProducts();
+            return products;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 export { ProductService }

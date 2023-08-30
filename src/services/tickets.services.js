@@ -1,5 +1,7 @@
 import { ticketsRepository } from '../repositories/index.js';
 import shortid from 'shortid';
+import EnumErrors from '../utils/errorHandler/enum.js';
+import CustomError from '../utils/errorHandler/CustomError.js';
 
 class TicketService {
     constructor() {
@@ -12,15 +14,33 @@ class TicketService {
             const receivedFields = Object.keys(ticket);
             const isValidOperation = receivedFields.every((field) => allowedFields.includes(field));
             if (!isValidOperation) {
-                throw new Error('Invalid fields!');
+                CustomError.createError({
+                    name: 'ticketFieldsValidation Error',
+                    message: 'Invalid fields',                        
+                    type: EnumErrors.INVALID_BODY_STRUCTURE_ERROR.type,
+                    recievedParams: { ticket },
+                    statusCode: EnumErrors.INVALID_BODY_STRUCTURE_ERROR.statusCode
+                });
             }
             ticket.code = shortid.generate();
             const ticketWithSameCode = await this.ticketsRepository.getTicketByCode(ticket.code);
             if (ticketWithSameCode) {
-                throw new Error('Ticket with same code already exists');
+                CustomError.createError({
+                    name: 'ticketFieldsValidation Error',
+                    message: 'Ticket with same code already exists',                        
+                    type: EnumErrors.UNIQUE_KEY_VIOLATION_ERROR.type,
+                    recievedParams: { code: ticket.code },
+                    statusCode: EnumErrors.UNIQUE_KEY_VIOLATION_ERROR.statusCode
+                });
             }
             if (ticket.amount <= 0) {
-                throw new Error('Ticket amount must be greater than 0');
+                CustomError.createError({
+                    name: 'ticketFieldsValidation Error',
+                    message: 'Ticket amount must be greater than 0',                        
+                    type: EnumErrors.BUSSINESS_TRANSACTION_ERROR.type,
+                    recievedParams: { amount: ticket.amount },
+                    statusCode: EnumErrors.BUSSINESS_TRANSACTION_ERROR.statusCode
+                });                    
             }
             return ticket;
         } catch (error) {

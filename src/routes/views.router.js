@@ -2,6 +2,8 @@ import { Router } from "express";
 import { jwtVerify, tokenFromCookieExtractor } from '../utils/utils.js';
 import cookieParser from 'cookie-parser';
 import viewsController from "../controllers/views.controller.js";
+import EnumErrors from '../utils/errorHandler/enum.js';
+import CustomError from '../utils/errorHandler/CustomError.js';
 
 const router = Router();
 router.use(cookieParser(process.env.AUTH_SECRET));
@@ -41,5 +43,16 @@ router.get('/webchat', privateAccess, viewsController.webchat);
 router.get('/products', privateAccess, viewsController.products);
 
 router.get('/carts/:cartId', privateAccess, viewsController.carts);
+
+
+router.all('*', (req, res) => {
+    CustomError.createError({
+        name: 'Routing Error',
+        message: 'Invalid route',
+        type: EnumErrors.ROUTING_ERROR.type,
+        recievedParams: { route: req.originalUrl },
+        statusCode: EnumErrors.ROUTING_ERROR.statusCode
+    });    
+});
 
 export default router;
