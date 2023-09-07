@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import compression from 'express-compression';
 import errorHandler from '../utils/errorHandler/errorHandler.js'
+import { requestLogger } from '../utils/logger.js';
 
 export function configureMiddlewares(app) {
   app.use(express.json());
@@ -15,6 +16,7 @@ export function configureMiddlewares(app) {
   app.use(compression({
     brotli: {enabled: true, zlib: {}}
   }));
+  app.use(requestLogger);
 }
 
 export function configurePostMiddlewares(app) {

@@ -1,15 +1,17 @@
-import express from 'express';
-import displayRoutes from 'express-routemap';
-import passport from 'passport';
 import configureCommander from './config/commander.config.js';
 import configureDotenv, { envFileName } from './config/dotenv.config.js';
 import configureMongo from './config/mongoDB.config.js';
+import express from 'express';
+import passport from 'passport';
 import initializePassport from './config/passport.config.js';
-import {configureMiddlewares} from './config/middlewares.config.js';
+import { configureMiddlewares , configurePostMiddlewares} from './config/middlewares.config.js';
 import configureHandlebars from './config/handlebars.config.js';
 import configurePublicFolder from './config/public.config.js';
 import routes from './routes/index.js';
 import configureSocket from './config/socket.config.js';
+import displayRoutes from 'express-routemap';
+import { bronxLogger } from './utils/logger.js';
+
 
 //MongoDB
 configureMongo();
@@ -32,7 +34,8 @@ const PORT = process.env.PORT;
 
 const serverHttp = app.listen(PORT, () => {
     displayRoutes(app);
-    console.log(`Backend server is now up on port ${PORT} in ${env} mode using ${envFileName} file`)
+    bronxLogger(`Backend server is now up on port ${PORT} in ${env} mode using ${envFileName} file`)
 });
 
 configureSocket(serverHttp, app);
+configurePostMiddlewares(app);

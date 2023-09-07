@@ -3,6 +3,7 @@ import cartsRouter from './carts.router.js';
 import messagesRouter from './messages.router.js';
 import viewsRouter from './views.router.js';
 import sessionsRouter from './sessions.router.js';
+import loggerRouter from './logger.router.js';
 
 export default function configureRoutes(app) {
   app.use('/api/alive', (req, res) => {
@@ -13,5 +14,6 @@ export default function configureRoutes(app) {
   app.use('/api/products', productsRouter);
   app.use('/api/carts', cartsRouter);
   app.use('/api/messages', messagesRouter);
+  app.use('/api/logger', loggerRouter);
   app.use('/', viewsRouter);
 }

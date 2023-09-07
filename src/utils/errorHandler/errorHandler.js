@@ -1,29 +1,38 @@
 import EnumErrors from "./enum.js";
+import { bronxLogger} from "../logger.js";
+import e from "connect-flash";
+
 export default (error, req, res, next) => {
-    
+ 
+    let errorObject;
     if (error.type) {
-       
+
             const validErrorTypes = Object.values(EnumErrors).map(enumError => enumError.type);
             if (validErrorTypes.includes(error.type)) {
+                errorObject = {
+                    type: error.type,
+                    name: error.name,
+                    message: error.message,
+                    recievedParams: error.recievedParams
+                    }
+                const errorType = Object.values(EnumErrors).find(enumError => enumError.type === error.type);
+                if (errorType.logLevel) bronxLogger(errorType.logLevel, JSON.stringify(errorObject));
+
                 return res.status(error.statusCode || 400).send({
                     status: 0,
-                    errorObject: {
-                        type: error.type,
-                        name: error.name,
-                        message: error.message,
-                        recievedParams: error.recievedParams
-                        }
+                    errorObject: errorObject
                 });
             }
         }
  
-    //<default> Unhandled Internal Server Error
+    errorObject = {
+        type: 999,
+        name: 'Unhandled Internal Server Error',
+        message: error.message
+        }
+    bronxLogger('fatal', JSON.stringify(errorObject));
     res.status(error.statusCode || 500).send({
         status: 0,
-        errorObject: {
-            type: 999,
-            name: 'Unhandled Internal Server Error',
-            message: error.message
-            }
+        errorObject: errorObject
         });
 };
