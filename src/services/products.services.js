@@ -83,7 +83,7 @@ class ProductService {
 
             const products = await this.productRepository.getProducts(limit, page, sort, category, available);
 
-            // Build navigation links
+          
             let navLinks = {};
 
             if (baseUrl) {
@@ -124,9 +124,10 @@ class ProductService {
         }
     };
 
-    productFieldsValidation = async (product) => {
+    productFieldsValidation = async (product, isCreating = false) => {
         try {
-            const allowedFields = ['title', 'description', 'code', 'price', 'stock', 'category', 'thumbnails'];
+            const allowedFields = isCreating ? ['title', 'description', 'code', 'price', 'stock', 'category', 'thumbnails', 'owner'] : 
+            ['title', 'description', 'code', 'price', 'stock', 'category', 'thumbnails'];
             const receivedFields = Object.keys(product);
             const isValidOperation = receivedFields.every((field) => allowedFields.includes(field));
             if (!isValidOperation) {
@@ -199,14 +200,14 @@ class ProductService {
 
     addProduct = async (newProductFields) => {
         try {
-            await this.productFieldsValidation(newProductFields);
+            await this.productFieldsValidation(newProductFields, true);
             return await this.productRepository.addProduct(newProductFields);
         } catch (error) {
             throw error;
         }
     };
 
-    updateProduct = async (productId, updatedProductFields) => {
+    updateProduct = async (productId, updatedProductFields, user) => {
         try {
             await this.productFieldsValidation(updatedProductFields);
             const product = await this.productRepository.getProductById(productId);
@@ -219,13 +220,24 @@ class ProductService {
                     statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
                 });
             }
+            if (user.role === 'premium') {
+                if (product.owner.toLowerCase() !== user.email.toLowerCase()) {
+                    CustomError.createError({
+                        name: 'updateProduct Error',
+                        message: 'You are not the owner of this product',                        
+                        type: EnumErrors.BUSSINESS_RULES_ERROR.type,
+                        recievedParams: { productId },
+                        statusCode: EnumErrors.BUSSINESS_RULES_ERROR.statusCode
+                    });
+                }
+            }
             return await this.productRepository.updateProduct(productId, updatedProductFields);
         } catch (error) {
             throw error;
         }
     };
 
-    deleteProduct = async (productId) => {
+    deleteProduct = async (productId, user) => {
         try {
             const product = await this.productRepository.getProductById(productId);
             if (!product) {
@@ -236,6 +248,17 @@ class ProductService {
                     recievedParams: { productId },
                     statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
                 });
+            }
+            if (user.role === 'premium') {
+                if (product.owner.toLowerCase() !== user.email.toLowerCase()) {
+                    CustomError.createError({
+                        name: 'deleteProduct Error',
+                        message: 'You are not the owner of this product',                        
+                        type: EnumErrors.BUSSINESS_RULES_ERROR.type,
+                        recievedParams: { productId },
+                        statusCode: EnumErrors.BUSSINESS_RULES_ERROR.statusCode
+                    });
+                }
             }
             return await this.productRepository.deleteProduct(productId);
         } catch (error) {

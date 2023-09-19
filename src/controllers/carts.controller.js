@@ -25,7 +25,7 @@ const updateCartById = async (req, res, next) => {
     try {
         const cartId = req.params.cartId;
         const products = req.body.products;
-        const cart = await cartService.addProductsToCart(cartId, products)
+        const cart = await cartService.addProductsToCart(cartId, products, req.user)
         res.status(201).send({ status: 1, msg: 'Cart updated successfully', cartProducts: cart.products });
     } catch (error) {
         next(error);
@@ -36,7 +36,7 @@ const addProductToCart = async (req, res, next) => {
     try {
         const cartId = req.params.cartId;
         const productId = req.params.productId;
-        const cart = await cartService.addToCart(cartId, productId);
+        const cart = await cartService.addToCart(cartId, productId, req.user);
         res.status(201).send({ status: 1, msg: 'Product added to cart successfully', cart });
     } catch (error) {
         next(error);

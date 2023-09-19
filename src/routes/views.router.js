@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import viewsController from "../controllers/views.controller.js";
 import EnumErrors from '../utils/errorHandler/enum.js';
 import CustomError from '../utils/errorHandler/CustomError.js';
+import { validateResetPasswordToken } from '../config/middlewares.config.js';
 
 const router = Router();
 router.use(cookieParser(process.env.AUTH_SECRET));
@@ -30,7 +31,9 @@ router.get('/register', publicAccess, viewsController.register);
 
 router.get('/login', publicAccess, viewsController.login);
 
-router.get('/resetpassword', publicAccess, viewsController.resetPassword);
+router.get('/resetpasswordrequest', publicAccess, viewsController.resetPasswordRequest);
+
+router.get('/resetpassword/:token', validateResetPasswordToken(true), viewsController.resetPassword);
 
 router.get('/', privateAccess, viewsController.userProfile);
 
@@ -43,7 +46,6 @@ router.get('/webchat', privateAccess, viewsController.webchat);
 router.get('/products', privateAccess, viewsController.products);
 
 router.get('/carts/:cartId', privateAccess, viewsController.carts);
-
 
 router.all('*', (req, res) => {
     CustomError.createError({

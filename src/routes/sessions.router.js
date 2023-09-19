@@ -4,6 +4,8 @@ import cookieParser from 'cookie-parser';
 import sessionController from '../controllers/sessions.controller.js';
 import EnumErrors from '../utils/errorHandler/enum.js';
 import CustomError from '../utils/errorHandler/CustomError.js';
+import { validateResetPasswordToken } from '../config/middlewares.config.js';
+import { authorization } from '../utils/utils.js'
 
 const router = Router();
 
@@ -13,7 +15,13 @@ router.post('/register', passportCall('register'), sessionController.register);
 
 router.post('/login', passportCall('login', { session: false }), sessionController.login);
 
-router.post('/resetpassword', passportCall('resetPassword'), sessionController.resetPassword);
+router.post('/resetpasswordrequest', sessionController.resetpasswordrequest);
+
+router.get('/resetpasswordvalidation/:token', validateResetPasswordToken(true), (req, res) => {
+    res.redirect(`/resetpassword/${req.params.token}`);
+});
+
+router.put('/resetpassword/:token', validateResetPasswordToken(true), passportCall('resetPassword'), sessionController.resetPassword);
 
 router.post('/logout', sessionController.logout);
 
@@ -22,6 +30,8 @@ router.get('/github', passportCall('github', { scope: ['user:email'] }), session
 router.get('/githubcallback', passportCall('github'), sessionController.githubCallback);
 
 router.get('/currentuser', passportCall('jwt', { session: false }), sessionController.currentUser);
+
+router.put('/premium/:email', authorization('admin'), sessionController.togglePremiumFeature);
 
 
 router.all('*', (req, res) => {

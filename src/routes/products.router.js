@@ -7,19 +7,18 @@ import CustomError from '../utils/errorHandler/CustomError.js';
 
 const router = Router();
 
-router.get('/', authorization(['admin', 'user']), productController.getProducts);
+router.get('/', authorization(['admin', 'user', 'premium']), productController.getProducts);
 
-router.get('/mockingproducts', authorization(['admin', 'user']), productController.getMockingProducts);
+router.get('/mockingproducts', authorization(['admin', 'user', 'premium']), productController.getMockingProducts);
 
-router.get('/:productId', authorization(['admin', 'user']), productController.getProductById);
+router.get('/:productId', authorization(['admin', 'user', 'premium']), productController.getProductById);
 
-router.post('/', authorization('admin'), uploader.array('thumbnails'), productController.addProduct);
+router.post('/', authorization(['admin', 'premium']), uploader.array('thumbnails'), productController.addProduct);
 
-router.put('/:productId', authorization('admin'), productController.updateProductById);
+router.put('/:productId', authorization(['admin', 'premium']), productController.updateProductById);
 
-router.delete('/:productId', authorization('admin'), productController.deleteProductById);
+router.delete('/:productId', authorization(['admin', 'premium']), productController.deleteProductById);
 
-//handler for invalid routes
 router.all('*', (req, res) => {
     CustomError.createError({
         name: 'Routing Error',

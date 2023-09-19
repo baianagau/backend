@@ -6,25 +6,25 @@ import CustomError from '../utils/errorHandler/CustomError.js';
 
 const router = Router();
 
-router.post('/', authorization(['user']), cartController.createCart);
+router.post('/', authorization(['user', 'premium']), cartController.createCart);
 
-router.get('/:cartId', authorization(['admin', 'user']), cartController.getCartById);
+router.get('/:cartId', authorization(['admin', 'user', 'premium']), cartController.getCartById);
 
-router.put('/:cartId', authorization(['user']), cartController.updateCartById);
+router.put('/:cartId', authorization(['user', 'premium']), cartController.updateCartById);
 
-router.post('/:cartId/products/:productId', authorization(['user']), cartController.addProductToCart);
+router.post('/:cartId/products/:productId', authorization(['user', 'premium']), cartController.addProductToCart);
 
-router.delete('/:cartId/products/:productId', authorization(['user']), cartController.removeProductFromCart);
+router.delete('/:cartId/products/:productId', authorization(['user', 'premium']), cartController.removeProductFromCart);
 
-router.put('/:cartId/products/:productId', authorization(['user']), cartController.updateProductQuantity);
+router.put('/:cartId/products/:productId', authorization(['user', 'premium']), cartController.updateProductQuantity);
 
-router.delete('/:cartId', authorization(['user']), cartController.emptyCart);
+router.delete('/:cartId', authorization(['user', 'premium']), cartController.emptyCart);
 
-router.post('/:cartId/checkout', authorization(['user']), cartController.checkoutCart);
+router.post('/:cartId/checkout', authorization(['user', 'premium']), cartController.checkoutCart);
 
 
 router.all('*', (req, res) => {
- CustomError.createError({
+    CustomError.createError({
         name: 'Routing Error',
         message: 'Invalid route',
         type: EnumErrors.ROUTING_ERROR.type,

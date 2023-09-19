@@ -35,6 +35,9 @@ const addProduct = async (req, res, next) => {
         } else {
             newProductFields.thumbnails = [];
         }
+        if (req.user.role === 'premium') {
+            newProductFields.owner = req.user.email;
+        }
         const newProduct = await productService.addProduct(newProductFields);
         productsUpdated(req.app.get('io'));
         res.send({ status: 1, msg: 'Product added successfully', product: newProduct });
@@ -47,9 +50,8 @@ const updateProductById = async (req, res, next) => {
     try {
         const productId = req.params.productId;
         const updatedProductFields = req.body;
-
         if (Object.keys(req.body).length === 0) throw new Error('Empty request body');
-        const updatedProduct = await productService.updateProduct(productId, updatedProductFields);
+        const updatedProduct = await productService.updateProduct(productId, updatedProductFields, req.user);
         productsUpdated(req.app.get('io'));
         res.send({ status: 1, msg: 'Product updated successfully', product: updatedProduct });
     } catch (error) {
@@ -61,6 +63,7 @@ const deleteProductById = async (req, res, next) => {
     try {
         const productId = req.params.productId;
         await productService.deleteProduct(productId);
+
         productsUpdated(req.app.get('io'));
         res.send({ status: 1, msg: 'Product deleted successfully' });
     } catch (error) {

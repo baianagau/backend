@@ -1,9 +1,9 @@
 import passport from "passport";
 import local from "passport-local";
-import jwt from 'passport-jwt';
 import UsersModel from "../dao/models/users.model.js";
 import { createHash, isValidPassword, tokenFromCookieExtractor } from "../utils/utils.js";
 import GitHubStrategy from "passport-github2";
+import jwt from 'passport-jwt';
 import { default as token } from 'jsonwebtoken';
 import UserDTO from "../dto/users.dto.js";
 
@@ -22,14 +22,14 @@ const initializePassport = () => {
     }, async (req, username, password, done) => {
         let errorMsg;
         try {
-            const { firstName, lastName, email, birthDate, role } = req.body;
+            const { firstName, lastName, email, birthDate } = req.body;
             if (username.toLowerCase() === process.env.ADMIN_USER.toLowerCase()) {
-                errorMsg = "Already exists";
+                errorMsg = "already exists";
                 return done(null, false, errorMsg );
             }
             const exists = await UsersModel.findOne({ email: { $regex: new RegExp(`^${username}$`, 'i') } });
             if (exists) {
-                errorMsg = "Already exists";
+                errorMsg = "already exists";
                 return done(null, false, errorMsg );
             }
             const newUser = {
@@ -38,7 +38,6 @@ const initializePassport = () => {
                 email: email.toLowerCase(),
                 birthDate,
                 password: createHash(password),
-                role,
             };
             const user = await UsersModel.create(newUser);
             const userDTO = new UserDTO(user);
@@ -63,7 +62,7 @@ const initializePassport = () => {
                 }
                 userJwt = {
                     firstName: 'Admin',
-                    lastName: 'Bonx',
+                    lastName: 'Bronx',
                     email: process.env.ADMIN_USER,
                     birthDate: '',
                     role: 'admin'
@@ -96,6 +95,10 @@ const initializePassport = () => {
     }, async (req, username, password, done) => {
         let errorMsg;
         try {
+            if (username.toLowerCase() !== req.email.toLowerCase()) {
+                errorMsg = "Invalid email in token";
+                return done(null, false, errorMsg );
+            }
             if (username.toLowerCase() === process.env.ADMIN_USER.toLowerCase()) {
                 errorMsg = "Admin password cannot be reset";
                 return done(null, false, errorMsg );
@@ -103,6 +106,10 @@ const initializePassport = () => {
                 const user = await UsersModel.findOne({ email: { $regex: new RegExp(`^${username}$`, 'i') } });
                 if (!user) {
                     errorMsg = "Wrong";
+                    return done(null, false, errorMsg );
+                }
+                if (isValidPassword(user, password)) {
+                    errorMsg = "New password cannot be the same as the old one";
                     return done(null, false, errorMsg );
                 }
                 const newHashedPassword = createHash(password);

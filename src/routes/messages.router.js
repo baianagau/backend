@@ -6,9 +6,9 @@ import CustomError from '../utils/errorHandler/CustomError.js';
 
 const router = Router();
 
-router.get('/', authorization(['admin', 'user']), messageController.getMessages);
+router.get('/', authorization(['admin', 'user', 'premium']), messageController.getMessages);
 
-router.post('/', authorization(['user']), messageController.postMessage);
+router.post('/', authorization(['user', 'premium']), messageController.postMessage);
 
 
 router.all('*', (req, res) => {

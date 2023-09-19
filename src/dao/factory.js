@@ -5,12 +5,8 @@ import CartMongoManager from './mongoManagers/carts.manager.js';
 import MessageMongoManager from './mongoManagers/messages.manager.js';
 import ProductMongoManager from './mongoManagers/products.manager.js';
 import TicketMongoManager from './mongoManagers/tickets.managers.js';
+import UserMongoManager from './mongoManagers/users.managers.js';
 
-/*
-import cartsFile from './fileManagers/carts.manager.js';
-import messagesFile from './fileManagers/messages.manager.js';
-import productsFile from './fileManagers/products.manager.js';
-*/
 
 const env = configureCommander();
 configureDotenv(env);
@@ -21,7 +17,7 @@ export class ProductsDaoFactory {
             case 'MONGODB':
                 return new ProductMongoManager();
             case 'FILE':
-                //return productsFile;
+             
                 throw new Error('File persistence not implemented yet');
             default:
                 return new ProductMongoManager();
@@ -35,7 +31,7 @@ export class CartsDaoFactory {
             case 'MONGODB':
                 return new CartMongoManager();
             case 'FILE':
-                //return cartsFile;
+              
                 throw new Error('File persistence not implemented yet');
             default:
                 return new CartMongoManager();
@@ -49,7 +45,7 @@ export class MessagesDaoFactory {
             case 'MONGODB':
                 return new MessageMongoManager();
             case 'FILE':
-                //return messagesFile;
+            
                 throw new Error('File persistence not implemented yet');
             default:
                 return new MessageMongoManager();
@@ -66,6 +62,19 @@ export class TicketsDaoFactory {
                 throw new Error('File persistence not implemented yet');
             default:
                 return new TicketMongoManager();
+        }
+    }
+} 
+
+export class UsersDaoFactory {
+    static getDao() {
+        switch (process.env.PERSISTANCE_TYPE) {
+            case 'MONGODB':
+                return new UserMongoManager();
+            case 'FILE':
+                throw new Error('File persistence not implemented yet');
+            default:
+                return new UserMongoManager();
         }
     }
 } 

@@ -38,9 +38,14 @@ const EnumErrors = {
         type: 8,
         statusCode: 500,
         logLevel: 'error'
-    },   
-    DATABASE_ERROR: {
+    }, 
+    BUSSINESS_RULES_ERROR: {
         type: 9,
+        statusCode: 400,
+        logLevel: 'warning'
+    },  
+    DATABASE_ERROR: {
+        type: 10,
         statusCode: 500,
         logLevel: 'error'
     }
