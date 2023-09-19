@@ -54,7 +54,7 @@ const carts = async (req, res) => {
         const cartId = req.params.cartId;
         const cartManager = new CartMongoManager();
         const cart = await cartManager.getCartById(cartId);
-        res.render('cart', {title: 'Flowery 4107 Cart', style: 'cart.css', cart: cart});
+        res.render('cart', {title: ' Cart', style: 'cart.css', cart: cart});
     } catch (error) {
         res.status(500).send(error.message);
     }

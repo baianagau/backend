@@ -13,7 +13,7 @@ class UserService {
         try {
             const user = await this.userRepository.getUserByEmail(email);
             if (!user) {
-                FloweryCustomError.createError({
+                CustomError.createError({
                     name: 'getUserByEmail Error',
                     message: 'User not found',
                     type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
@@ -52,7 +52,7 @@ class UserService {
                 if (!user) {
                     CustomError.createError({
                         name: 'getUserByEmail Error',
-                        message: 'Wrong flowerier',
+                        message: 'Wrong ',
                         type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
                         recievedParams: { email },
                         statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
@@ -60,7 +60,7 @@ class UserService {
                 }
                 const jwt = this.createEmailJwt(email)
                 const resetUrl = `${frontEndUrl}/api/sessions/resetpasswordvalidation/${jwt}`;
-                await sendEmail(email, 'Flowery 4107 - Reset Password', `<h1>Flowery 4107 - Reset Password</h1>
+                await sendEmail(email, 'Reset Password', `<h1> Reset Password</h1>
                 <p>Click <a href="${resetUrl}">here</a> to reset your password.</p>
                 <p>If you didn't request a password reset, please ignore this email.</p>`);
                 return user;
