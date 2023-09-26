@@ -5,7 +5,6 @@ import compression from 'express-compression';
 import errorHandler from '../utils/errorHandler/errorHandler.js'
 import { requestLogger } from '../utils/logger.js';
 import { default as jwt } from 'jsonwebtoken';
-import { th } from '@faker-js/faker';
 
 export const configureMiddlewares = (app) => {
   app.use(express.json());

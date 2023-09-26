@@ -11,7 +11,7 @@ import routes from './routes/index.js';
 import configureSocket from './config/socket.config.js';
 import displayRoutes from 'express-routemap';
 import { bronxLogger } from './utils/logger.js';
-
+import configureSwagger from './config/swagger.config.js';
 
 //MongoDB
 configureMongo();
@@ -28,6 +28,7 @@ configureHandlebars(app);
 initializePassport(passport);
 app.use(passport.initialize());
 configurePublicFolder(app);
+configureSwagger(app);
 routes(app);
 
 const PORT = process.env.PORT;
