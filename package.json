@@ -1,14 +1,14 @@
 {
   "name": "bronx",
   "version": "1.0.0",
-  "description": "Backend of e-commerce",
+  "description": "Backend e-commerce",
   "main": "src/app.js",
   "scripts": {
-    "test": "node ./src/test/productManagerTest.js",
     "start": "nodemon ./src/app.js",
     "start:dev": "cross-env NODE_ENV=dev nodemon ./src/app.js",
     "start:qa": "cross-env NODE_ENV=qa nodemon ./src/app.js",
-    "start:prod": "cross-env NODE_ENV=prod nodemon ./src/app.js"
+    "start:prod": "cross-env NODE_ENV=prod nodemon ./src/app.js",
+    "test:dev": "cross-env NODE_ENV=dev mocha src/test/**/*.test.js"
   },
   "author": "Baiana Gau",
   "license": "ISC",
@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "chai": "^4.3.8",
-    "mocha": "^10.2.0"
+    "mocha": "^10.2.0",
+    "supertest": "^6.3.3"
   }
 }

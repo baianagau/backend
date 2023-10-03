@@ -16,22 +16,22 @@ class UserMongoManager {
                 message: `Failed to retrieve user: ${error.message}`,
                 type: EnumErrors.DATABASE_ERROR.type,
                 statusCode: EnumErrors.DATABASE_ERROR.statusCode
-            });
+              });             
         }
     }
 
     updateUser = async (userId, updatedFields) => {
         try {
             const { role } = updatedFields;
-            const updatedUser = await this.usersModel.findByIdAndUpdate(userId, { role: role }, { new: true });
+            const updatedUser = await this.usersModel.findByIdAndUpdate(userId, {role: role}, {new: true});
             if (!updatedUser) {
                 CustomError.createError({
-                    name: 'updateUser Error',
-                    message: 'User not found',
-                    type: EnumErrors.DATABASE_ERROR.type,
-                    statusCode: EnumErrors.DATABASE_ERROR.statusCode
-                });
-            }
+                  name: 'updateUser Error',
+                  message: 'User not found',
+                  type: EnumErrors.DATABASE_ERROR.type,
+                  statusCode: EnumErrors.DATABASE_ERROR.statusCode
+                });        
+              }
             return updatedUser;
         } catch (error) {
             CustomError.createError({
@@ -39,7 +39,35 @@ class UserMongoManager {
                 message: `Failed to update user: ${error.message}`,
                 type: EnumErrors.DATABASE_ERROR.type,
                 statusCode: EnumErrors.DATABASE_ERROR.statusCode
-            });
+              });             
+        }
+    }
+
+    createUser = async (user) => {
+        try {
+            const newUser = await this.usersModel.create(user);
+            return newUser;
+        } catch (error) {
+            CustomError.createError({
+                name: 'createUser Error',
+                message: `Failed to create user: ${error.message}`,
+                type: EnumErrors.DATABASE_ERROR.type,
+                statusCode: EnumErrors.DATABASE_ERROR.statusCode
+              });
+        }
+    }
+
+    deleteUserByEmail = async (email) => {
+        try {
+            const deletedUser = await this.usersModel.findOneAndDelete({ email: { $regex: new RegExp(`^${email}$`, 'i') } });
+            return deletedUser;
+        } catch (error) {
+            CustomError.createError({
+                name: 'deleteUserByEmail Error',
+                message: `Failed to delete user: ${error.message}`,
+                type: EnumErrors.DATABASE_ERROR.type,
+                statusCode: EnumErrors.DATABASE_ERROR.statusCode
+              });             
         }
     }
 

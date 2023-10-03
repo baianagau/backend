@@ -18,7 +18,7 @@ class CartMongoManager {
         message: `Failed to add cart: ${error.message}`,
         type: EnumErrors.DATABASE_ERROR.type,
         statusCode: EnumErrors.DATABASE_ERROR.statusCode
-      });        
+      });
     }
   }
 
@@ -32,7 +32,7 @@ class CartMongoManager {
         message: `Failed to retrieve cart: ${error.message}`,
         type: EnumErrors.DATABASE_ERROR.type,
         statusCode: EnumErrors.DATABASE_ERROR.statusCode
-      });      
+      });
     }
   }
 
@@ -45,7 +45,7 @@ class CartMongoManager {
           message: 'Cart products are required',
           type: EnumErrors.DATABASE_ERROR.type,
           statusCode: EnumErrors.DATABASE_ERROR.statusCode
-        });            
+        });
       }
       cart.products = newCartProducts;
       await cart.save();
@@ -56,9 +56,31 @@ class CartMongoManager {
         message: `Failed to update cart's products: ${error.message}`,
         type: EnumErrors.DATABASE_ERROR.type,
         statusCode: EnumErrors.DATABASE_ERROR.statusCode
-      });            
+      });
+    }
+  }
+
+  deleteCart = async (cartId) => {
+    try {
+      const cart = await this.cartModel.findByIdAndDelete(cartId);
+      if (!cart) {
+        CustomError.createError({
+          name: 'deleteCart Error',
+          message: 'Cart not found',
+          type: EnumErrors.DATABASE_ERROR.type,
+          statusCode: EnumErrors.DATABASE_ERROR.statusCode
+        });
+      }
+    } catch (error) {
+      CustomError.createError({
+        name: 'deleteCart Error',
+        message: `Failed to delete cart: ${error.message}`,
+        type: EnumErrors.DATABASE_ERROR.type,
+        statusCode: EnumErrors.DATABASE_ERROR.statusCode
+      });
     }
   }
 }
+
 
 export default CartMongoManager;

@@ -18,10 +18,10 @@ class CartService {
         } catch (error) {
             CustomError.createError({
                 name: 'createCart Error',
-                message: `Failed to add cart: ${error.message}`,                        
+                message: `Failed to add cart: ${error.message}`,
                 type: EnumErrors.BUSSINESS_TRANSACTION_ERROR.type,
                 statusCode: EnumErrors.BUSSINESS_TRANSACTION_ERROR.statusCode
-            });                    
+            });
         }
     }
 
@@ -31,11 +31,11 @@ class CartService {
             if (!cart) {
                 CustomError.createError({
                     name: 'getCartById Error',
-                    message: 'Cart not found',                        
+                    message: 'Cart not found',
                     type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
                     recievedParams: { cartId },
                     statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
-                });                    
+                });
             }
             return cart;
         } catch (error) {
@@ -49,56 +49,69 @@ class CartService {
             if (!product) {
                 CustomError.createError({
                     name: 'checkProductStock Error',
-                    message: 'Product not found',                        
+                    message: 'Product not found',
                     type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
                     recievedParams: { productId },
                     statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
-                });                    
+                });
             }
             if (product.stock < quantity) {
                 CustomError.createError({
                     name: 'checkProductStock Error',
-                    message: 'Insufficient stock',                        
+                    message: 'Insufficient stock',
                     type: EnumErrors.INVALID_FIELDS_VALUE_ERROR.type,
                     recievedParams: { quantity },
                     statusCode: EnumErrors.INVALID_FIELDS_VALUE_ERROR.statusCode
-                });                
+                });
             }
         } catch (error) {
             throw error;
         }
     }
 
-    addToCart = async (cartId, productId) => {
+    addToCart = async (cartId, productId, user) => {
         try {
             let stockControl = 0;
             const cart = await this.cartRepository.getCartById(cartId);
             if (!cart) {
                 CustomError.createError({
                     name: 'addToCart Error',
-                    message: 'Cart not found',                        
+                    message: 'Cart not found',
                     type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
                     recievedParams: { cartId },
                     statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
-                });                    
+                });
             }
             if (!productId) {
                 CustomError.createError({
                     name: 'addToCart Error',
-                    message: 'Product ID is required',                        
+                    message: 'Product ID is required',
                     type: EnumErrors.INVALID_FIELDS_VALUE_ERROR.type,
                     statusCode: EnumErrors.INVALID_FIELDS_VALUE_ERROR.statusCode
-                });                    
+                });
             }
             const product = await this.productService.getProductById(productId);
             if (!product) {
                 CustomError.createError({
                     name: 'addToCart Error',
-                    message: 'Product not found',                        
+                    message: 'Product not found',
                     type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
                     recievedParams: { productId },
                     statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
-                });                    
+                });
+            }
+            if (user) {
+                if (user.role === 'premium') {
+                    if (product.owner.toLowerCase() === user.email.toLowerCase()) {
+                        CustomError.createError({
+                            name: 'addToCart Error',
+                            message: 'You cannot add your own products to cart',
+                            type: EnumErrors.BUSSINESS_RULES_ERROR.type,
+                            recievedParams: { productId },
+                            statusCode: EnumErrors.BUSSINESS_RULES_ERROR.statusCode
+                        });
+                    }
+                }
             }
             const existingProduct = cart.products.find((product) => product.product._id.toString() === productId);
             if (existingProduct) {
@@ -122,29 +135,29 @@ class CartService {
             if (!cart) {
                 CustomError.createError({
                     name: 'removeFromCart Error',
-                    message: 'Cart not found',                        
+                    message: 'Cart not found',
                     type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
                     recievedParams: { cartId },
                     statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
-                });                    
+                });
             }
             if (!productId) {
                 CustomError.createError({
                     name: 'removeFromCart Error',
-                    message: 'Product ID is required',                        
+                    message: 'Product ID is required',
                     type: EnumErrors.INVALID_FIELDS_VALUE_ERROR.type,
                     statusCode: EnumErrors.INVALID_FIELDS_VALUE_ERROR.statusCode
-                });                    
+                });
             }
             const existingProduct = cart.products.find((product) => product.product._id.toString() === productId);
             if (!existingProduct) {
                 CustomError.createError({
                     name: 'removeFromCart Error',
-                    message: 'Product not found in cart',                        
+                    message: 'Product not found in cart',
                     type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
                     recievedParams: { productId },
                     statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
-                });                    
+                });
             }
             existingProduct.quantity -= 1;
             if (existingProduct.quantity === 0) {
@@ -163,46 +176,46 @@ class CartService {
             if (!cart) {
                 CustomError.createError({
                     name: 'updateProductQuantity Error',
-                    message: 'Cart not found',                        
+                    message: 'Cart not found',
                     type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
                     recievedParams: { cartId },
                     statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
-                });                    
+                });
             }
             if (!productId) {
                 CustomError.createError({
                     name: 'updateProductQuantity Error',
-                    message: 'Product ID is required',                        
+                    message: 'Product ID is required',
                     type: EnumErrors.INVALID_FIELDS_VALUE_ERROR.type,
                     statusCode: EnumErrors.INVALID_FIELDS_VALUE_ERROR.statusCode
-                });                    
+                });
             }
             const existingProduct = cart.products.find((product) => product.product._id.toString() === productId);
             if (!existingProduct) {
                 CustomError.createError({
                     name: 'updateProductQuantity Error',
-                    message: 'Product not found in cart',                        
+                    message: 'Product not found in cart',
                     type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
                     recievedParams: { productId },
                     statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
-                });                    
+                });
             }
             if (!quantity) {
                 CustomError.createError({
                     name: 'updateProductQuantity Error',
-                    message: 'Quantity is required',                        
+                    message: 'Quantity is required',
                     type: EnumErrors.INVALID_FIELDS_VALUE_ERROR.type,
                     statusCode: EnumErrors.INVALID_FIELDS_VALUE_ERROR.statusCode
-                });                    
+                });
             }
             if (quantity <= 0) {
                 CustomError.createError({
                     name: 'updateProductQuantity Error',
-                    message: 'Quantity cannot be zero or negative',                        
+                    message: 'Quantity cannot be zero or negative',
                     type: EnumErrors.INVALID_FIELDS_VALUE_ERROR.type,
                     recievedParams: { quantity },
                     statusCode: EnumErrors.INVALID_FIELDS_VALUE_ERROR.statusCode
-                });                    
+                });
             }
             existingProduct.quantity = quantity;
             await this.cartRepository.updateCartProducts(cartId, cart.products);
@@ -218,44 +231,39 @@ class CartService {
             if (!cart) {
                 CustomError.createError({
                     name: 'emptyCart Error',
-                    message: 'Cart not found',                        
+                    message: 'Cart not found',
                     type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
                     recievedParams: { cartId },
                     statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
-                });                    
+                });
             }
             cart.products = [];
             await this.cartRepository.updateCartProducts(cartId, cart.products);
             return cart;
         } catch (error) {
-            CustomError.createError({
-                name: 'emptyCart Error',
-                message: `Failed to empty cart: ${error.message}`,                        
-                type: EnumErrors.BUSSINESS_TRANSACTION_ERROR.type,
-                statusCode: EnumErrors.BUSSINESS_TRANSACTION_ERROR.statusCode
-            });                    
+            throw error;
         }
     }
 
-    addProductsToCart = async (cartId, products) => {
+    addProductsToCart = async (cartId, products, user) => {
         try {
             const cart = await this.cartRepository.getCartById(cartId);
             if (!cart) {
                 CustomError.createError({
                     name: 'addProductsToCart Error',
-                    message: 'Cart not found',                        
+                    message: 'Cart not found',
                     type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
                     recievedParams: { cartId },
                     statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
-                });                    
+                });
             }
             if (!products || !Array.isArray(products) || products.length === 0) {
                 CustomError.createError({
                     name: 'addProductsToCart Error',
-                    message: 'Invalid product list',                        
+                    message: 'Invalid product list',
                     type: EnumErrors.INVALID_BODY_STRUCTURE_ERROR.type,
                     statusCode: EnumErrors.INVALID_BODY_STRUCTURE_ERROR.statusCode
-                });                    
+                });
             }
             const existingProducts = cart.products.map((product) => product.product._id.toString());
             const productsToAdd = [];
@@ -265,28 +273,41 @@ class CartService {
                 if (!productId) {
                     CustomError.createError({
                         name: 'addProductsToCart Error',
-                        message: 'Product ID is required',                        
+                        message: 'Product ID is required',
                         type: EnumErrors.INVALID_BODY_STRUCTURE_ERROR.type,
                         statusCode: EnumErrors.INVALID_BODY_STRUCTURE_ERROR.statusCode
-                    });                    
+                    });
                 }
                 if (!quantity || quantity <= 0) {
                     CustomError.createError({
                         name: 'addProductsToCart Error',
-                        message: 'Valid quantity is required',                        
+                        message: 'Valid quantity is required',
                         type: EnumErrors.INVALID_BODY_STRUCTURE_ERROR.type,
                         statusCode: EnumErrors.INVALID_BODY_STRUCTURE_ERROR.statusCode
-                    });                    
+                    });
                 }
                 const product = await this.productService.getProductById(productId);
                 if (!product) {
                     CustomError.createError({
                         name: 'addProductsToCart Error',
-                        message: 'Product not found',                        
+                        message: 'Product not found',
                         type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
                         recievedParams: { productId },
                         statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
-                    });                    
+                    });
+                }
+                if (user) {
+                    if (user.role === 'premium') {
+                        if (product.owner.toLowerCase() === user.email.toLowerCase()) {
+                            CustomError.createError({
+                                name: 'addProductsToCart Error',
+                                message: 'You cannot add your own products to cart',
+                                type: EnumErrors.BUSSINESS_RULES_ERROR.type,
+                                recievedParams: { productId },
+                                statusCode: EnumErrors.BUSSINESS_RULES_ERROR.statusCode
+                            });
+                        }
+                    }
                 }
                 if (existingProducts.includes(productId)) {
                     const existingProduct = cart.products.find((product) => product.product._id.toString() === productId);
@@ -302,10 +323,10 @@ class CartService {
         } catch (error) {
             CustomError.createError({
                 name: 'addProductsToCart Error',
-                message: `Failed to add products to cart: ${error.message}`,                        
+                message: `Failed to add products to cart: ${error.message}`,
                 type: EnumErrors.BUSSINESS_TRANSACTION_ERROR.type,
                 statusCode: EnumErrors.BUSSINESS_TRANSACTION_ERROR.statusCode
-            });                    
+            });
         }
     }
 
@@ -315,19 +336,19 @@ class CartService {
             if (!cart) {
                 CustomError.createError({
                     name: 'checkoutCart Error',
-                    message: 'Cart not found',                        
+                    message: 'Cart not found',
                     type: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.type,
                     recievedParams: { cartId },
                     statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
-                });                    
+                });
             }
             if (cart.products.length === 0) {
                 CustomError.createError({
                     name: 'checkoutCart Error',
-                    message: 'Cart is empty',                        
+                    message: 'Cart is empty',
                     type: EnumErrors.BUSSINESS_TRANSACTION_ERROR.type,
                     statusCode: EnumErrors.BUSSINESS_TRANSACTION_ERROR.statusCode
-                });                    
+                });
             }
             const products = cart.products;
 
@@ -346,10 +367,10 @@ class CartService {
             if (productsPurchased.length === 0) {
                 CustomError.createError({
                     name: 'checkoutCart Error',
-                    message: 'No products were purchased',                        
+                    message: 'No products were purchased',
                     type: EnumErrors.BUSSINESS_TRANSACTION_ERROR.type,
                     statusCode: EnumErrors.BUSSINESS_TRANSACTION_ERROR.statusCode
-                });                    
+                });
             }
 
             await this.emptyCart(cartId);
@@ -367,10 +388,10 @@ class CartService {
             if (!newTicket) {
                 CustomError.createError({
                     name: 'checkoutCart Error',
-                    message: 'Failed to create ticket',                        
+                    message: 'Failed to create ticket',
                     type: EnumErrors.BUSSINESS_TRANSACTION_ERROR.type,
                     statusCode: EnumErrors.BUSSINESS_TRANSACTION_ERROR.statusCode
-                });                    
+                });
             }
 
             const purchaseCartResult = {
@@ -384,10 +405,10 @@ class CartService {
         } catch (error) {
             CustomError.createError({
                 name: 'checkoutCart Error',
-                message: `Failed to purchase cart: ${error.message}`,                        
+                message: `Failed to purchase cart: ${error.message}`,
                 type: EnumErrors.BUSSINESS_TRANSACTION_ERROR.type,
                 statusCode: EnumErrors.BUSSINESS_TRANSACTION_ERROR.statusCode
-            });             
+            });
         }
     }
 }

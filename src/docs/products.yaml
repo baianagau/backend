@@ -314,7 +314,7 @@ components:
           items:
             type: string
             description: URLs of product thumbnails.
-            example: https://res.cloudinary.com/djlmqpd2n/image/upload/v1620220003/flowery4107/products/6498f2feb8c8060f32debf0d/6498f2feb8c8060f32debf0d_1.jpg
+            example: https://res.cloudinary.com/djlmqpd2n/image/upload/v1620220003/bronx/products/6498f2feb8c8060f32debf0d/6498f2feb8c8060f32debf0d_1.jpg
   requestBodies:
     newProduct:
       type: object

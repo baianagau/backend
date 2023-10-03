@@ -71,7 +71,7 @@ const emptyCart = async (req, res, next) => {
 
     try {
         const emptiedCart = await cartService.emptyCart(cartId);
-        res.status(201).send({ status: 1, msg: 'Cart successfully emptied', cart: emptiedCart });
+        res.status(200).send({ status: 1, msg: 'Cart successfully emptied', cart: emptiedCart });
     } catch (error) {
         next(error);
     }
