@@ -1,8 +1,8 @@
 import { usersRepository } from '../repositories/index.js';
+import { sendEmail } from '../utils/mailer.js';
+import { default as token } from 'jsonwebtoken';
 import EnumErrors from '../utils/errorHandler/enum.js';
 import CustomError from '../utils/errorHandler/CustomError.js';
-import { default as token } from 'jsonwebtoken';
-import { sendEmail } from '../utils/mailer.js';
 
 class UserService {
     constructor() {
@@ -92,6 +92,31 @@ class UserService {
                 });
             }
             const newRole = { role: user.role === 'user' ? 'premium' : 'user' };
+
+            if (newRole.role === 'premium') {
+                if (!user.documents || user.documents.length === 0) {
+                 CustomError.createError({
+                        name: 'togglePremiumFeature Error',
+                        message: 'User has no documents',                        
+                        type: EnumErrors.BUSSINESS_RULES_ERROR.type,
+                        recievedParams: { email },
+                        statusCode: EnumErrors.BUSSINESS_RULES_ERROR.statusCode
+                    });
+                }
+                const requiredDocuments = ['id', 'address', 'bankaccount'];
+                const userDocuments = user.documents.map(document => document.name);
+                const missingDocuments = requiredDocuments.filter(document => !userDocuments.includes(document));
+                if (missingDocuments.length > 0) {
+                    CustomError.createError({
+                        name: 'togglePremiumFeature Error',
+                        message: 'User has missing required documents',
+                        type: EnumErrors.BUSSINESS_RULES_ERROR.type,
+                        recievedParams: { email },
+                        statusCode: EnumErrors.BUSSINESS_RULES_ERROR.statusCode
+                    });
+                }
+            }
+
             const updatedUser = await this.userRepository.updateUser(user._id, newRole);
             return updatedUser;
         } catch (error) {

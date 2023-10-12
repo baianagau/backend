@@ -2,9 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import compression from 'express-compression';
-import errorHandler from '../utils/errorHandler/errorHandler.js'
-import { requestLogger } from '../utils/logger.js';
 import { default as jwt } from 'jsonwebtoken';
+import { requestLogger } from '../utils/logger.js';
+import { UserService } from "../services/users.services.js";
+import { jwtVerify, tokenFromCookieExtractor } from '../utils/utils.js';
+import { th } from '@faker-js/faker';
+import errorHandler from '../utils/errorHandler/errorHandler.js'
 
 export const configureMiddlewares = (app) => {
   app.use(express.json());
@@ -41,4 +44,49 @@ export const validateResetPasswordToken = (redirectOnError = false) => {
           }
       }
   };
+};
+export const jwtFromCookie = async (req, res, next) => {
+  try {
+      const token = tokenFromCookieExtractor(req);
+      if (!token) {
+          return next();
+      }
+      req.user = token;
+      next();
+  } catch (error) {
+      throw error;
+  }
+};
+export const setLastConnection = async (req, res, next) => {
+  try {
+      const userService = new UserService();
+      const token = req.user;
+      if (!token) {
+          return next();
+      }
+      const decodedToken = jwtVerify(token);
+      const user = decodedToken.user;
+      if (!user || !user.email || user.email.toLowerCase() === process.env.ADMIN_USER.toLowerCase()) {
+          return next();
+      }
+      await userService.updateLastConnection(user.email);
+      next();
+  } catch (error) {
+      throw error;
+  }
+};
+
+export const checkDocumentUploader = async (req, res, next) => {
+  try {
+      const user = req.user;
+      if (!user) {
+        return res.status(401).send({ status: 0, msg: 'Unauthorized' });
+      }
+      if ( user.email !== req.params.email ) {
+        return res.status(403).send({ status: 0, msg: 'Forbidden' });
+      }
+      next();
+  } catch (error) {
+      throw error;
+  }
 };
