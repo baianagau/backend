@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { jwtVerify, tokenFromCookieExtractor } from '../utils/utils.js';
+import { jwtVerify, tokenFromCookieExtractor, authorization } from '../utils/utils.js';
 import cookieParser from 'cookie-parser';
 import viewsController from "../controllers/views.controller.js";
 import EnumErrors from '../utils/errorHandler/enum.js';
@@ -46,6 +46,9 @@ router.get('/webchat', privateAccess, viewsController.webchat);
 router.get('/products', privateAccess, viewsController.products);
 
 router.get('/carts/:cartId', privateAccess, viewsController.carts);
+
+router.get('/users', privateAccess, authorization('admin'), viewsController.users);
+
 
 router.all('*', (req, res) => {
     CustomError.createError({

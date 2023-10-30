@@ -4,6 +4,11 @@ export default class UsersRepository {
         this.dao = dao;
     }
 
+    getUsers = async (limit = 10, page = 1) => {
+        const users = await this.dao.getUsers(limit, page);
+        return users;
+    }
+
     getUserByEmail = async (email) => {
         const user = await this.dao.getUserByEmail(email);
         return user;
@@ -23,4 +28,9 @@ export default class UsersRepository {
         const deletedUser = await this.dao.deleteUserByEmail(email);
         return deletedUser;
     }
-}
+
+    deleteInactiveUsers = async () => {
+        const deletedUsers = await this.dao.deleteInactiveUsers();
+        return deletedUsers;
+    }
+};

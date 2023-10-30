@@ -5,14 +5,14 @@ import { createHash, isValidPassword, tokenFromCookieExtractor } from "../utils/
 import GitHubStrategy from "passport-github2";
 import jwt from 'passport-jwt';
 import { default as token } from 'jsonwebtoken';
-import UserDTO from "../dto/users.dto.js";
+import { UserDTO } from "../dto/users.dto.js";
 
 // JWT
 const JWTStrategy = jwt.Strategy;
 const ExtractJWT = jwt.ExtractJwt;
 export const generateToken = user => token.sign({ user }, process.env.AUTH_SECRET, { expiresIn: '1d' })
 
-//Local
+//LocalStrategy
 const LocalStrategy = local.Strategy;
 
 const initializePassport = () => {

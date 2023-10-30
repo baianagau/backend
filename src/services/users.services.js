@@ -3,11 +3,92 @@ import { sendEmail } from '../utils/mailer.js';
 import { default as token } from 'jsonwebtoken';
 import EnumErrors from '../utils/errorHandler/enum.js';
 import CustomError from '../utils/errorHandler/CustomError.js';
+import { UserDTO, UserBriefDTO } from "../dto/users.dto.js";
 
 class UserService {
     constructor() {
         this.userRepository = usersRepository;
     }
+
+
+    getUsers = async (limit = 10, page = 1, baseUrl) => {
+        try {
+            if (limit) {
+                const parsedLimit = parseInt(limit);
+                if (isNaN(parsedLimit) || parsedLimit < 1) {
+                    CustomError.createError({
+                        name: 'getUsers Error',
+                        message: 'Invalid limit value. Positive integer expected',
+                        type: EnumErrors.INVALID_FIELDS_VALUE_ERROR.type,
+                        recievedParams: { limit },
+                        statusCode: EnumErrors.INVALID_FIELDS_VALUE_ERROR.statusCode
+                    });
+                }
+            }
+            if (page) {
+                const parsedPage = parseInt(page);
+                if (isNaN(parsedPage) || parsedPage < 1) {
+                    CustomError.createError({
+                        name: 'getUsers Error',
+                        message: 'Invalid page value. Positive integer expected',
+                        type: EnumErrors.INVALID_FIELDS_VALUE_ERROR.type,
+                        recievedParams: { page },
+                        statusCode: EnumErrors.INVALID_FIELDS_VALUE_ERROR.statusCode
+                    });
+                }
+            }
+            if (baseUrl) {
+                if (typeof baseUrl !== 'string' || baseUrl.length === 0) {
+                    CustomError.createError({
+                        name: 'getUsers Error',
+                        message: 'Invalid baseUrl value. Non-empty string expected',
+                        type: EnumErrors.INVALID_PROGRAM_DATA_ERROR.type,
+                        recievedParams: { baseUrl },
+                        statusCode: EnumErrors.INVALID_PROGRAM_DATA_ERROR.statusCode
+                    });
+                }
+            }
+            const users = await this.userRepository.getUsers(limit, page);
+            const usersDTO = users.users.map(user => new UserBriefDTO(user));
+
+
+            let navLinks = {};
+
+            if (baseUrl) {
+                navLinks = {
+                    firstLink: users.totalPages > 1 ? `${baseUrl}?limit=${limit}&page=1` : null,
+                    prevLink: users.hasPrevPage ? `${baseUrl}?limit=${limit}&page=${users.prevPage}` : null,
+                    nextLink: users.hasNextPage ? `${baseUrl}?limit=${limit}&page=${users.nextPage}` : null,
+                    lastLink: users.totalPages > 1 ? `${baseUrl}?limit=${limit}&page=${users.totalPages}` : null
+                };
+            }
+
+            const usersDTOWithLinks = {
+                users: usersDTO,
+                totalUsers: users.totalUsers,
+                limit: users.limit,
+                totalPages: users.totalPages,
+                pagingCounter: users.pagingCounter,
+                page: users.page,
+                hasPrevPage: users.hasPrevPage,
+                hasNextPage: users.hasNextPage,
+                prevPage: users.prevPage,
+                nextPage: users.nextPage,
+                ...navLinks
+            };
+
+            return usersDTOWithLinks;
+
+        } catch (error) {
+            CustomError.createError({
+                name: 'getUsers Error',
+                message: `Failed to retrieve users: ${error.message}`,
+                type: EnumErrors.DATABASE_ERROR.type,
+                statusCode: EnumErrors.DATABASE_ERROR.statusCode
+            });
+        }
+    }
+
 
     getUserByEmail = async (email) => {
         try {
@@ -21,7 +102,9 @@ class UserService {
                     statusCode: EnumErrors.NOT_FOUND_ENTITY_ID_ERROR.statusCode
                 });
             }
-            return user;
+
+            const userDTO = new UserDTO(user);
+            return userDTO;
         } catch (error) {
             CustomError.createError({
                 name: 'getUserByEmail Error',
@@ -31,6 +114,8 @@ class UserService {
             });
         }
     }
+
+
 
     createEmailJwt = (email) => {
         const jwt = token.sign({ email }, process.env.AUTH_SECRET, { expiresIn: '1h' });
@@ -95,9 +180,9 @@ class UserService {
 
             if (newRole.role === 'premium') {
                 if (!user.documents || user.documents.length === 0) {
-                 CustomError.createError({
+                    CustomError.createError({
                         name: 'togglePremiumFeature Error',
-                        message: 'User has no documents',                        
+                        message: 'User has no documents',
                         type: EnumErrors.BUSSINESS_RULES_ERROR.type,
                         recievedParams: { email },
                         statusCode: EnumErrors.BUSSINESS_RULES_ERROR.statusCode
@@ -128,6 +213,27 @@ class UserService {
             });
         }
     }
+
+    deleteInactiveUsers = async () => {
+        try {
+            const users = await this.userRepository.deleteInactiveUsers();
+            const usersDTO = users.map(user => new UserBriefDTO(user));
+            for (const user of usersDTO) {
+                await sendEmail(user.email, 'Bronx - Account deleted', `<h1>Bronx - Account deleted</h1>
+                <p>Your account has been deleted due to inactivity.</p>
+                <p>If you want to use our services again, please register again.</p>`);
+            }
+            return usersDTO;
+        } catch (error) {
+            CustomError.createError({
+                name: 'deleteInactiveUsers Error',
+                message: `Failed to delete inactive users: ${error.message}`,
+                type: EnumErrors.DATABASE_ERROR.type,
+                statusCode: EnumErrors.DATABASE_ERROR.statusCode
+            });
+        }
+    }
+
 }
 
 export { UserService }

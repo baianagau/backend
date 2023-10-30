@@ -11,9 +11,15 @@ const router = Router();
 
 router.use(cookieParser(process.env.AUTH_SECRET));
 
+router.get('/', authorization('admin'), usersController.getUsers);
+
+router.get('/:email', authorization('admin'), usersController.getUserByEmail);
+
 router.put('/:email/premium', authorization('admin'), usersController.togglePremiumFeature);
 
 router.post('/:email/documents', authorization(['user', 'premium']), checkDocumentUploader, uploader('documents').array('documents'), usersController.updateDocuments);
+
+router.delete('/', authorization('admin'), usersController.deleteInactiveUsers);
 
 //cont de rutas inv
 router.all('*', (req, res) => {
